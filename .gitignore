@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.npy
 
+*.gif
 data/
 .fits
 .idea/

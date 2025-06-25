@@ -36,10 +36,6 @@ cal.fit_ellipses(show=True, prune=True)
 e = cal.ellipses
 print(e)
 
-# importlib.reload(cbct)
-#
-# cal = cbct.CBCTCalibration()
-# cal.ellipses = e
 cal.compute_calibration(diameter=20, avgtype='mean', remove_outliers=True, show=True)
 
 print(cal.calibration)

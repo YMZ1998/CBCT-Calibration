@@ -512,7 +512,7 @@ class CBCTCalibration:
         Compute the calibration
         """
         self._compute_COR()
-        self._compute_piercing_point()
+        self._compute_piercing_point3(show=show)
         # self._compute_piercing_point2(degree=ppdegree,show=show)
         self._compute_distances(diameter=diameter,
                                 pixelsize=pixelsize,
@@ -752,6 +752,58 @@ class CBCTCalibration:
         global_min_value = result.fun
 
         self.calibration["pp"] = {"x": result.x[0], "y": result.x[1]}
+
+    def _compute_piercing_point3(self, show=False):
+        """
+        Compute the piercing point (u₀, v₀) of the cone beam system.
+        Returns a fixed point {'x': u₀, 'y': v₀} by finding the intersection of two fitted lines.
+        """
+
+        # === 1. 提取椭圆中心 y 和高度（投影大小）===
+        y = np.array([ellipse["ellipse"]["xy"][1] for ellipse in self.ellipses])
+        minax = np.array([ellipse["ellipse"]["height"] for ellipse in self.ellipses])
+
+        minidx = np.argmin(minax)
+
+        # === 2. 尝试不同拼接点，找到最小残差的分段拟合 ===
+        res = np.zeros(3)
+        for idx in range(3):
+            p0, r0, *_ = np.polyfit(y[:minidx + idx], minax[:minidx + idx], 1, full=True)
+            p1, r1, *_ = np.polyfit(y[minidx + idx + 1:], minax[minidx + idx + 1:], 1, full=True)
+            res[idx] = r0 + r1
+
+        idx = np.argmin(res)
+
+        # === 3. 使用最优分界点做线性拟合 ===
+        p0 = np.polyfit(y[:minidx + idx], minax[:minidx + idx], 1)
+        p1 = np.polyfit(y[minidx + idx + 1:], minax[minidx + idx + 1:], 1)
+
+        # === 4. 求交点位置（u,v），即穿孔点 ===
+        y0 = (p0[1] - p1[1]) / (p1[0] - p0[0])  # vertical (v) coordinate
+        x0 = np.polyval(p1, y0)  # horizontal (u) coordinate
+
+        # === 5. 可选可视化 ===
+        if show:
+            import matplotlib.pyplot as plt
+            plt.figure(figsize=(6, 5))
+            plt.scatter(y, minax, label="Ellipse Heights", color='blue')
+            y_fit = np.linspace(min(y), max(y), 200)
+            plt.plot(y_fit[y_fit <= y0], np.polyval(p0, y_fit[y_fit <= y0]), 'g--', label="Left Fit")
+            plt.plot(y_fit[y_fit > y0], np.polyval(p1, y_fit[y_fit > y0]), 'r--', label="Right Fit")
+            plt.axvline(y0, color='k', linestyle=':', label=f'Piercing y = {y0:.1f}')
+            plt.axhline(x0, color='gray', linestyle=':', label=f'Piercing x = {x0:.1f}')
+            plt.legend()
+            plt.title("Piercing Point Estimation")
+            plt.xlabel("y position")
+            plt.ylabel("Ellipse height")
+            plt.grid(True)
+            plt.show()
+
+        # === 6. 保存穿孔点 ===
+        self.calibration["pp"] = {
+            "y": y0,
+            "x": x0  # fixed value, not slope
+        }
 
     def show_calibration(self):
         x = np.array([ellipse["ellipse"]["xy"][0] for ellipse in self.ellipses])
