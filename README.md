@@ -1,4 +1,4 @@
-# CBCTCalibration
+# CBCT-Calibration
 CBCT geometry calibration.
 
 The code comes from [CBCTCalibration](https://github.com/neutronimaging/CBCTCalibration).
