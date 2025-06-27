@@ -1,7 +1,7 @@
 # CBCT-Calibration
 CBCT geometry calibration.
 
-The code comes from [CBCTCalibration](https://github.com/neutronimaging/CBCTCalibration).
+The code comes from [CBCTCalibration](https://github.com/neutronimaging/CBCTCalibration) and [geometric_calibration](https://github.com/mrossi93/geometric_calibration)
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15222362.svg)](https://doi.org/10.5281/zenodo.15222362)
 

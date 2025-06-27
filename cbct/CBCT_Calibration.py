@@ -138,6 +138,7 @@ class CBCTCalibration:
             ax[1].plot(self.histogram[1][0:-1], self.histogram[0])
             ax[1].set_yscale('log')
             plt.show()
+
     def show_histogram(self):
         """
         Show the histogram of the flattened projections. This is only a display function.
@@ -212,6 +213,7 @@ class CBCTCalibration:
 
         # np.save("projections_bilevel.npy", self.projections_bilevel)
         # print(self.projections_bilevel.shape)
+
     def show_bw_projection(self, idx=None):
         if idx is None:
             plt.imshow(self.projections_bilevel.max(axis=0), interpolation='none')
@@ -253,7 +255,7 @@ class CBCTCalibration:
 
         return img * g2
 
-    def  find_beads(self, min_distance=5, breakup=False, breakup_threshold=1, show=False):
+    def find_beads(self, min_distance=5, breakup=False, breakup_threshold=1, show=False):
         self.beads = []
         for (idx, (biproj, flat)) in enumerate(zip(self.projections_bilevel, self.projections_flat)):
             if breakup:
