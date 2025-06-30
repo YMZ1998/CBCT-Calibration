@@ -1,9 +1,10 @@
 from click.testing import CliRunner
-from trimesh.path.packing import paths
 
 from geometric_calibration import cli
+from geometric_calibration.calibration import run_calibration
 
-if __name__ == "__main__":
+
+def run_cli():
     # cli.main()
     runner = CliRunner()
     # result = runner.invoke(cli.main, ["--help"])
@@ -16,10 +17,36 @@ if __name__ == "__main__":
         "--mode", "cbct",
         "--input_path", str(input_dir),
         "--ref", str(ref_file),
-        "--sad", "1172.2",
-        "--sid", "1672.2"
+        "--sad", "940",
+        "--sid", "1490"
     ])
     print('end')
     print(result.output)
     print(result.exit_code)
     print(result.exception)
+def vis_bbs():
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    bbs = np.loadtxt(r"./geometric_calibration/app_data/ref_brandis.txt")
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(bbs[:, 0], bbs[:, 1], bbs[:, 2], c='b', s=20)
+
+    ax.set_xlabel('X (mm)')
+    ax.set_ylabel('Y (mm)')
+    ax.set_zlabel('Z (mm)')
+    ax.set_title('Brandis Phantom - BB Coordinates')
+    plt.show()
+
+
+if __name__ == "__main__":
+    vis_bbs()
+    run_calibration(
+        mode="cbct",
+        input_path=r"D:\Data\cbct\250613模体数据\A",
+        ref="./geometric_calibration/app_data/ref_brandis.txt",
+        sad=940,
+        sid=1490,
+    )

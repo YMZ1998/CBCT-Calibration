@@ -23,6 +23,9 @@ from geometric_calibration.utils import (
     search_bbs_centroids,
 )
 
+PROJ_SIZE = [1420, 1420]
+PROJ_SPACING = [0.3, 0.3]
+
 
 def calibrate_cbct(projection_dir, bbs_3d, sad, sid):
     """Main CBCT Calibration routines.
@@ -44,9 +47,8 @@ def calibrate_cbct(projection_dir, bbs_3d, sad, sid):
     # Read image labels
     # labels_file_path = os.path.join(projection_dir, "imgLabels.txt")
     # print("labels_file_path: ", labels_file_path)
-    proj_file, angles = read_projection_file(projection_dir)
+    proj_file, angles = read_projection_file(projection_dir, PROJ_SIZE)
     print("angles: ", sorted(angles))
-    exit(0)
     # Initialize output dictionary
     results = {
         "proj_angles": [],
@@ -66,6 +68,7 @@ def calibrate_cbct(projection_dir, bbs_3d, sad, sid):
         iterable=range(len(angles)), fill_char="=", empty_char=" "
     ) as prog_bar:
         for k in prog_bar:
+            print("k: ", k)
             proj_path = os.path.join(
                 projection_dir, proj_file[k]
             )  # path of the current image
@@ -79,8 +82,8 @@ def calibrate_cbct(projection_dir, bbs_3d, sad, sid):
                     sid=sid,
                     angle=angles[k],
                     angle_offset=0,
-                    img_dim=[1420, 1420],
-                    pixel_size=[0.3, 0.3],
+                    img_dim=PROJ_SIZE,
+                    pixel_size=PROJ_SPACING,
                     search_area=7,
                     drag_and_drop=True,
                 )
@@ -97,8 +100,8 @@ def calibrate_cbct(projection_dir, bbs_3d, sad, sid):
                     sid=sid,
                     angle=angles[k - 1],
                     angle_offset=angle_offset,
-                    img_dim=[1420, 1420],
-                    pixel_size=[0.3, 0.3],
+                    img_dim=PROJ_SIZE,
+                    pixel_size=PROJ_SPACING,
                     search_area=7,
                     image_center=image_center,
                     drag_and_drop=False,
@@ -181,8 +184,8 @@ def calibrate_2d(projection_dir, bbs_3d, sad, sid):
                 sid=sid,
                 angle=angles[k],
                 angle_offset=0,
-                img_dim=[1420, 1420],
-                pixel_size=[0.3, 0.3],
+                img_dim=PROJ_SIZE,
+                pixel_size=PROJ_SPACING,
                 search_area=14,
                 resolution_factor=2,
                 drag_and_drop=True,
@@ -212,8 +215,8 @@ def calibrate_projection(
     sid,
     angle,
     angle_offset=0,
-    img_dim=[1420, 1420],
-    pixel_size=[0.3, 0.3],
+    img_dim=PROJ_SIZE,
+    pixel_size=PROJ_SPACING,
     search_area=7,
     resolution_factor=1,
     image_center=None,
