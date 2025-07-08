@@ -28,3 +28,9 @@ This code is based on:
 
 ---
 
+## Detected Circles
+
+<div style="text-align:center">
+  <img src="./result/detected_circles_compressed.gif" width="300">
+</div>
+
