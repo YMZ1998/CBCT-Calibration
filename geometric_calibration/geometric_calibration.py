@@ -1,18 +1,15 @@
-"""Main module."""
-
 import os
 from datetime import datetime
-import numpy as np
-from scipy.optimize import least_squares
+
 import click
 import matplotlib.pyplot as plt
+import numpy as np
+from scipy.optimize import least_squares
 
 from geometric_calibration.reader import (
-    read_img_label_file,
     read_projection_hnc,
     read_projection_raw, read_projection_file,
 )
-
 from geometric_calibration.utils import (
     deg2rad,
     angle2rotm,

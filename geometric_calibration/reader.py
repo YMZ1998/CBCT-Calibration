@@ -50,12 +50,18 @@ def read_raw_image(filename, proj_size=[1420, 1420], dtype=np.uint16):
 
 def read_projection_file(proj_folder, proj_size):
     raw_files = sorted([f for f in os.listdir(proj_folder) if f.endswith(".raw")])[:100]
+    is_a = False
+    if "A" in raw_files[0]:
+        is_a = True
     print(raw_files)
     proj_file = []
     angles = []
     for i, f in enumerate(raw_files):
         image, angle = read_raw_image(os.path.join(proj_folder, f), proj_size, np.uint16)
-        angle = angle + 45
+        if is_a:
+            angle = angle + 45
+        else:
+            angle = angle - 45
         # angles = np.fmod(angles + 360.0, 360.0)  # Normalize angle to [0, 360)
         # angles = 360.0 - angles  # Flip the angle
         angle = np.deg2rad(angle)

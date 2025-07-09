@@ -2,7 +2,6 @@ import os
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-import imageio
 from PIL import Image
 
 
@@ -90,6 +89,7 @@ if __name__ == "__main__":
         optimize=True,  # 开启优化调色板，减小文件
     )
     # # 循环结束后保存为GIF
+    # import imageio
     # gif_path = os.path.join("./result", "detected_circles.gif")
     # imageio.mimsave(gif_path, frames, duration=0.1, loop=0)  # duration单位秒
     #
