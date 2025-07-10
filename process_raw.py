@@ -21,11 +21,7 @@ def detect_circles(image):
 
     norm = ((image - min_val) / (max_val - min_val) * 255).astype(np.uint8)
     blurred = cv2.GaussianBlur(norm, (5, 5), 0)
-    # plt.figure(figsize=(6, 6))
-    # plt.imshow(blurred, cmap="gray")
-    # plt.title("image")
-    # plt.axis("off")
-    # plt.show()
+
     circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, dp=1.2, minDist=30,
                                param1=50, param2=30, minRadius=15, maxRadius=25)
     output = cv2.cvtColor(norm, cv2.COLOR_GRAY2BGR)
@@ -34,7 +30,7 @@ def detect_circles(image):
         for (x, y, r) in circles[0, :]:
             cv2.circle(output, (x, y), r, (0, 255, 0), 2)
             cv2.circle(output, (x, y), 2, (0, 0, 255), -1)
-    return circles, output
+    return circles, output, cv2.cvtColor(norm, cv2.COLOR_GRAY2BGR)
 
 
 if __name__ == "__main__":
@@ -53,7 +49,7 @@ if __name__ == "__main__":
         filename = os.path.join(data_dir, fname)
         print(f"\n🟡 正在处理第 {idx + 1} 张图像: {filename}")
         image = read_raw_image(filename, image_size, image_size)
-        circles, output = detect_circles(image)
+        circles, output,_ = detect_circles(image)
 
         if circles is not None:
             print(f"✅ 检测到 {len(circles[0])} 个圆点：")

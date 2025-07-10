@@ -20,14 +20,14 @@ def parse_angle(filename):
     if match:
         angle = float(match.group(1))
 
-    print(f"读取 {filename} 完成, 角度: {angle}")
+    # print(f"读取 {filename} 完成, 角度: {angle}")
 
     return angle
 
 
 def read_projection_file(proj_folder):
     raw_files = sorted([f for f in os.listdir(proj_folder) if f.endswith(".raw")])
-    print(raw_files)
+    # print(raw_files)
     proj_file = []
     angles = []
     for i, f in enumerate(raw_files):
