@@ -43,7 +43,7 @@ def get_points(subject_name='111', show_images=False):
     for i, img in enumerate(derivative_imgs):
         if show_images:
             img_util.plot(img, f'IMAGE {i}', cmap='gray')
-        img_util.saveImageBW(f'img_{i}.png', img)
+        # img_util.saveImageBW(f'img_{i}.png', img)
         print(f'Sharpness for img {i}: {sharpness_vals[i]:.4f}')
 
     return sorted(zip(distances, sharpness_vals))
