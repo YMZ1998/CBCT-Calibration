@@ -10,6 +10,7 @@ This code is based on:
 
 * [CBCTCalibration](https://github.com/neutronimaging/CBCTCalibration)
 * [geometric_calibration](https://github.com/mrossi93/geometric_calibration)
+* [sharpness_detection_autofocus](https://github.com/russwong89/sharpness_detection_autofocus)
 
 ---
 
