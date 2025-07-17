@@ -8,6 +8,10 @@ __pycache__/
 data/
 .fits
 .idea/
+*.png
+*.jpg
+INFO
+
 
 # C extensions
 *.so
