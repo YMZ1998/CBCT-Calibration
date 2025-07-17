@@ -1,177 +1,71 @@
-'''
-@name	golden_section.py
-@brief	Main file for finding the optimum of the given function
-@author	Yun-Ha Jung, Russell Wong, 2017
-'''
-import sys, os, math
+import math
 
-import sharpness_calc, cubic_spline, gaussian_elimination, img_util
+import numpy as np
+
+import cubic_spline
+import gaussian_elimination
+import img_util
+import sharpness_calc
 
 REQ_ERR = 0.01
-GR = (math.sqrt(5) - 1)/2
-
-# test function for testing the functionality
-def testFunction(x):
-	return (-x**3) + (5*x) + 6
+GR = (math.sqrt(5) - 1) / 2
 
 
-'''
-@name		evaluateCubicSharpnessFunction
-@brief		Calculates an estimated sharpness value based on
-            cubic splines
-@param[in]	x: The distance value at which the sharpness function should be evaluated
-			coefficients: A vector of a,b,c,d coefficients representing each cubic function in the spline
-			x_vals: A vector of distance values corresponding to the endpoints of each cubic function in the spline
-@return 	float: The calculated sharpness value
-'''
-
-def evalCubicSharpnessFunction(x,coefficients,x_vals):
-	# Initialize right, left, and middle indices
-	right_index = len(x_vals)-1
-	left_index = 0
-	middle_index = int(math.ceil((left_index+right_index)/2.0))
-
-	# Loop until the index where the x value belongs (binary search)
-	while (x > x_vals[middle_index] or x < x_vals[middle_index-1]):
-		if (middle_index == 0):
-			print "Could not find x=%f with bounds of x_vals (%f,%f)!\n" % (x, x_vals[0], x_vals[len(x_vals)-1])
-			return -1
-		if (x > x_vals[middle_index]):
-			left_index = middle_index
-		elif (x < x_vals[middle_index-1]):
-			right_index = middle_index-1
-		middle_index = int(math.ceil((left_index+right_index)/2.0))
-
-	# Extract the appropriate cubic coefficients
-	a = coefficients[4*(middle_index-1)]
-	b = coefficients[4*(middle_index-1)+1]
-	c = coefficients[4*(middle_index-1)+2]
-	d = coefficients[4*(middle_index-1)+3]
-
-	return a*x**3 + b*x**2 + c*x + d
+def eval_cubic_sharpness(x, coeffs, x_vals):
+    left, right = 0, len(x_vals) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if x_vals[mid - 1] <= x <= x_vals[mid]:
+            a = coeffs[4 * (mid - 1)]
+            b = coeffs[4 * (mid - 1) + 1]
+            c = coeffs[4 * (mid - 1) + 2]
+            d = coeffs[4 * (mid - 1) + 3]
+            return a * x ** 3 + b * x ** 2 + c * x + d
+        elif x < x_vals[mid - 1]:
+            right = mid - 1
+        else:
+            left = mid + 1
+    print(f"Value x={x} out of bounds ({x_vals[0]}, {x_vals[-1]})")
+    return -1
 
 
-def evaluateSharpnessFunction(x, coefficients, x_vals):
-	# Find left and right bounds of x from x_vals
-	# Use a binary search
-	right_index = len(x_vals)-1
-	left_index = 0
-	middle_index = int(math.ceil((left_index+right_index)/2.0))
-	while (x > x_vals[middle_index] or x < x_vals[middle_index-1]):
-		if (middle_index == 0):
-			print "Could not find x=%f with bounds of x_vals (%f,%f)!\n" % (x, x_vals[0], x_vals[len(x_vals)-1])
-			return -1
-		if (x > x_vals[middle_index]):
-			left_index = middle_index
-		elif (x < x_vals[middle_index-1]):
-			right_index = middle_index-1
-		middle_index = int(math.ceil((left_index+right_index)/2.0))
+def golden_section(xlow, xup, coeffs, x_vals):
+    d = GR * abs(xup - xlow)
+    x1, x2 = xlow + d, xup - d
 
-	# Extract the appropriate cubic coefficients
-	a = coefficients[3*(middle_index-1)]
-	b = coefficients[3*(middle_index-1)+1]
-	c = coefficients[3*(middle_index-1)+2]
+    while True:
+        d = GR * d
+        y1 = eval_cubic_sharpness(x1, coeffs, x_vals)
+        y2 = eval_cubic_sharpness(x2, coeffs, x_vals)
 
-	return a*x**2 + b*x + c
+        if y1 >= y2:
+            if max(abs(xup - x1), abs(x1 - x2)) < REQ_ERR:
+                return (x1, y1)
+            xlow = x2
+        else:
+            if max(abs(x1 - x2), abs(x2 - xlow)) < REQ_ERR:
+                return (x2, y2)
+            xup = x1
+
+        x1 = xlow + d
+        x2 = xup - d
 
 
-'''
-@name		goldenSection
-@brief		find optimum point (x,y) of the given function
-@param[in]	xlow: lower bound of the range where the optimum is
-			xup: upper bound of the range where the optimum is
-			coefficients: A vector of a,b,c coefficients representing each parabola in the spline
-			              (used for sharpness calculations)
-			x_vals: A vector of distance values corresponding to the endpoints of each parabola in the spline
-				    (used for sharpness calculations)
-@return 	optimum: the optimum point (x,y)
-'''
-def goldenSection(xlow, xup, coefficients, x_vals):
-	optimum = (0,0)
-	
-	# Calculate distance to define x1 and x2
-	# Since golden ratio has a larger percentage than 50%,
-	# x1 is going to be closer to upper bound and 
-	# x2 will be closer to lower bound
-	d = GR*abs(xup-xlow)
-	x1 = xlow + d
-	x2 = xup - d
-
-	# Infinite loop to find the optimum of a function
-	# Break the loop when the calculated error is smaller than REQ_ERR
-	while(True):
-		# Calculate new distance
-		d = GR*d
-
-		# Calculate y values for given x1 and x2 values
-		y1 = evalCubicSharpnessFunction(x1,coefficients,x_vals)
-		y2 = evalCubicSharpnessFunction(x2,coefficients,x_vals)
-
-		# Compare y1 and y2, if y1 is greater than y2 
-		# it means that the optimum falls between x2-xup range
-		# therefore all the x values from xlow to x2 can be eliminated
-		if y1 >= y2:
-			max_err = max(abs(xup-x1), abs(x1-x2))
-			if max_err < REQ_ERR:
-				optimum = (x1,y1)
-				break
-
-			# x2 becomes new lower bound
-			xlow = x2
-			# Calculate new x1 and x2
-			x1 = xlow + d
-			x2 = xup - d
-
-		# Compare y1 and y2, if y2 is greater than y1
-		# it means that the optimum falls between x1-xlow range
-		# therefore all the x values from x1 to xup can be eliminated
-		elif y2 > y1:
-			max_err = max(abs(x1-x2), abs(x2-xlow))
-			if max_err < REQ_ERR:
-				optimum = (x2,y2)
-				break
-
-			# x1 becomes new upper bound
-			xup = x1
-			# Calculate new x1 and x2
-			x1 = xlow + d
-			x2 = xup - d
-
-	return optimum
-
-
-#######################
-###  Main Function  ###
-#######################
 if __name__ == '__main__':
-	# Find (distance, sharpness) data points for a given set of images
-	if len(sys.argv) > 1:
-		subject_name = sys.argv[1]
-		print subject_name
-		points = sharpness_calc.getPoints(subject_name, show_images=False)
-	else:
-		points = sharpness_calc.getPoints()
-	print points
+    subject_name = '002'
+    print(f"Processing subject: {subject_name}")
+    points = sharpness_calc.get_points(subject_name, show_images=False)
+    print(points)
 
-	# Get A matrix and b vector required to solve for coefficients of cubicratic spline
-	A,b = cubic_spline.getAMatrixAndBVector(points)
+    A, b = cubic_spline.get_a_matrix_and_b_vector(points)
+    coeffs = gaussian_elimination.solve(A, b)
+    x_vals = [p[0] for p in points]
 
-	# Solve for coefficients using Gaussian Elimination
-	coefficients = gaussian_elimination.solve(A,b)
-	x_vals = [p[0] for p in points]
+    opt1 = golden_section(x_vals[0], (x_vals[0] + x_vals[-1]) / 2, coeffs, x_vals)
+    opt2 = golden_section((x_vals[0] + x_vals[-1]) / 2, x_vals[-1], coeffs, x_vals)
+    opt3 = golden_section(x_vals[0], x_vals[-1], coeffs, x_vals)
 
-	# Find the optimum sharpness and focus distance using Golden-Section 
-	opt1 = goldenSection(x_vals[0],(x_vals[0]+x_vals[len(x_vals)-1])/2,coefficients,x_vals)
-	opt2 = goldenSection((x_vals[0]+x_vals[len(x_vals)-1])/2,x_vals[len(x_vals)-1],coefficients,x_vals)
-	opt3 = goldenSection(x_vals[0], x_vals[len(x_vals)-1],coefficients,x_vals)
+    opt = max([opt1, opt2, opt3], key=lambda o: o[1])
+    print(f"Optimum found: X = {np.squeeze(opt[0]):.4f}, Y = {np.squeeze(opt[1]):.4f}")
 
-	max_sharpness = max(opt1[1], opt2[1], opt3[1])
-	if max_sharpness == opt1[1]:
-		opt = opt1
-	elif max_sharpness == opt2[1]:
-		opt = opt2
-	else:
-		opt = opt3
-
-	print 'X: %f, Y: %f' % (opt[0], opt[1])
-	img_util.plotCubic(coefficients, x_vals, 'Cubic Spline for Subject #' + subject_name, opt[0], opt[1])
+    img_util.plotCubic(coeffs, x_vals, f'Cubic Spline for Subject #{subject_name}', opt[0], opt[1])

@@ -1,58 +1,50 @@
-'''
-@name    gauss_seidel.py
-@brief   Solve for the coefficients ai, bi, ci, di
-		 to define cubic spline
-		 This script is disabled due to special cases
-		 where there are 0's in the A matrix and the
-		 target xi will be divided by 0
-@author  Yun-Ha Jung, 2017
-'''
-
-import sys, os, math
+import sys
 import numpy as np
 
-import img_util, cubic_spline
+import img_util
+import cubic_spline
 
-def gsSolve(A, b, xi, err=0.1):
-	# Initialize variables for size of array and x vector
+
+def gauss_seidel(A, b, xi, err=1e-3, max_iter=10000):
     n = len(b)
-    delta_x = np.zeros((n,1))
-    calc_err = err+1
+    x_new = xi.copy()
+    calc_err = err + 1
+    iter_count = 0
 
-    # Copy the initial guess vector
-    xnew = list(xi)
+    while calc_err > err and iter_count < max_iter:
+        for i in range(n):
+            sigma = sum(A[i][j] * x_new[j] for j in range(n) if j != i)
+            if A[i][i] == 0:
+                raise ZeroDivisionError(f"A[{i}][{i}] is zero. Cannot divide.")
+            x_new[i] = (b[i] - sigma) / A[i][i]
 
-    while (calc_err > err):
-    	for i in range(n):
-    		xnew[i] = b[i]
+        delta_x = np.abs(x_new - xi)
+        norm_delta_x = np.linalg.norm(delta_x)
+        norm_xi = np.linalg.norm(xi)
+        calc_err = norm_delta_x / (norm_xi + 1e-8)  # avoid division by zero
+        xi = x_new.copy()
+        iter_count += 1
 
-    		for j in range(n):
-    			if j == i:
-    				continue
+    if iter_count == max_iter:
+        print("Warning: Gauss-Seidel did not converge within max iterations.")
 
-    			xnew[i] -= A[i][j]*xnew[j]
+    return x_new
 
-    		xnew[i] /= A[i][i]
 
-    	for k in range(n):
-    		delta_x = abs(xnew[k] - xi[k])
+if __name__ == "__main__":
+    sample_points = [(0, 0), (1, 3), (2, 1), (4, 5)]
+    A, b = cubic_spline.get_a_matrix_and_b_vector(sample_points)
 
-    	norm_delta_x = np.linalg.norm(delta_x)
-    	norm_xold = np.linalg.norm(xi)
+    if len(A) == 0 or len(b) == 0:
+        sys.exit("Invalid system. Not enough points.")
 
-    	calc_err = norm_delta_x/norm_xold
-    	xi = list(xnew)
+    b = b.flatten()
+    xi = np.ones_like(b)
 
-    return xnew
+    try:
+        x = gauss_seidel(A, b, xi)
+        print("Solution x:\n", x)
+    except ZeroDivisionError as e:
+        print("Error during solving:", e)
 
-if  __name__ == "__main__":
-
-	sample_points = [(0,0),(1,3),(2,1),(4,5)]
-	A,b = cubic_spline.getAMatrixAndBVector(sample_points)
-	xi = np.ones((len(b),1))
-	print A
-	print b
-	x = gsSolve(A,b,xi)
-	print x
-	sys.exit()
-
+    img_util.plotPoints(sample_points, 'Sample Points')
