@@ -4,9 +4,9 @@ import os
 import click
 import click_config_file
 
-from geometric_calibration.cli import save_cli, REF_BBS_DEFAULT_PATH
-from geometric_calibration.reader import read_bbs_ref_file
-from geometric_calibration.geometric_calibration import (
+from cli import save_cli, REF_BBS_DEFAULT_PATH
+from reader import read_bbs_ref_file
+from geometric_calibration import (
     calibrate_cbct,
     calibrate_2d,
     save_lut,

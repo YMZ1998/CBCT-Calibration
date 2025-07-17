@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import least_squares
 
-from .reader import (
+from reader import (
     read_projection_hnc,
     read_projection_raw, read_projection_file,
 )
-from .utils import (
+from utils import (
     deg2rad,
     angle2rotm,
     get_grayscale_range,

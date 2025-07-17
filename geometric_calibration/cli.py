@@ -3,8 +3,8 @@ import sys
 import os
 import click
 import click_config_file
-from geometric_calibration.reader import read_bbs_ref_file
-from geometric_calibration.geometric_calibration import (
+from reader import read_bbs_ref_file
+from geometric_calibration import (
     calibrate_cbct,
     calibrate_2d,
     save_lut,

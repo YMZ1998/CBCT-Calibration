@@ -1,7 +1,7 @@
 """This module contains some function for I/O purposes."""
 import os
 import numpy as np
-from geometric_calibration.utils import angle2rotm, deg2rad
+from utils import angle2rotm, deg2rad
 
 
 def read_bbs_ref_file(filename):

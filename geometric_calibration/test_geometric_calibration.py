@@ -1,7 +1,7 @@
 from click.testing import CliRunner
 
-from geometric_calibration import cli
-from geometric_calibration.calibration import run_calibration
+import cli
+from calibration import run_calibration
 
 
 def run_cli():
@@ -28,7 +28,7 @@ def vis_bbs():
     import numpy as np
     import matplotlib.pyplot as plt
 
-    bbs = np.loadtxt(r"./geometric_calibration/app_data/ref_brandis.txt")
+    bbs = np.loadtxt(r"./app_data/ref_brandis.txt")
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     run_calibration(
         mode="cbct",
         input_path=r"D:\Data\cbct\250613模体数据\A",
-        ref="./geometric_calibration/app_data/ref_brandis.txt",
+        ref="./app_data/ref_brandis.txt",
         sad=940,
         sid=1490,
     )

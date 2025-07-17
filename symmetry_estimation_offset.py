@@ -124,9 +124,9 @@ def estimate_u_offset(image_deg_0, image_deg_180, max_offset=50, metric='ncc', s
             visualize_sub_matching_scores(sub_matching_scores, best_offset_fine, sub_range)
 
         optimal_u_offset = best_offset_fine
-        print(f"✅ 亚像素优化后 u 偏移: {optimal_u_offset:.2f} pixels，匹配指标: {metric}")
+        print(f"亚像素优化后 u 偏移: {optimal_u_offset:.2f} pixels，匹配指标: {metric}")
     else:
-        print(f"✅ 最佳整数 u 偏移: {optimal_u_offset} pixels，匹配指标: {metric}")
+        print(f"最佳整数 u 偏移: {optimal_u_offset} pixels，匹配指标: {metric}")
     return optimal_u_offset, matching_scores, sub_matching_scores
 
 
