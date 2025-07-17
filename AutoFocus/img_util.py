@@ -21,7 +21,7 @@ def plotPoints(points, title):
     plt.show()
 
 
-def plotParabolas(coefficients, x_vals, title, max_x, max_y, maximize=False):
+def plotParabolas(coefficients, x_vals, title, max_x, max_y):
     """Plot piecewise parabolic curves"""
     x, y, y_vals = [], [], []
     for i in range(len(x_vals) - 1):

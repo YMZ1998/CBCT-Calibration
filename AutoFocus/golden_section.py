@@ -54,7 +54,7 @@ def golden_section(xlow, xup, coeffs, x_vals):
 if __name__ == '__main__':
     subject_name = '002'
     print(f"Processing subject: {subject_name}")
-    points = sharpness_calc.get_points(subject_name, show_images=True)
+    points = sharpness_calc.get_points(subject_name, show_images=False)
     print(points)
 
     A, b = cubic_spline.get_a_matrix_and_b_vector(points)
