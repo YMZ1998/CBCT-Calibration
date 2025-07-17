@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from PIL import Image
 
-gif_path = 'dilated_img.gif'
+gif_path = '../result/detected_circles_compressed.gif'
 
 # === 加载 GIF 并播放 ===
 # 读取 GIF 为帧序列

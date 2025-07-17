@@ -5,7 +5,7 @@ import os
 from matplotlib import pyplot as plt
 
 # === 1. 加载数据 ===
-npy_path = "projections_bilevel.npy"
+npy_path = "../CBCTCalibration/projections_bilevel.npy"
 assert os.path.exists(npy_path), f"{npy_path} 文件不存在！"
 
 volume = np.load(npy_path)  # shape: (N_proj, H, W)

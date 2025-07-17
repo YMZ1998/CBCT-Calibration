@@ -75,7 +75,7 @@ if __name__ == "__main__":
         small_frames.append(pil_img)
 
     # 保存 GIF，PIL 会自动优化调色板，文件通常会更小
-    gif_path = os.path.join("./result", "detected_circles_compressed.gif")
+    gif_path = os.path.join("../result", "detected_circles_compressed.gif")
     small_frames[0].save(
         gif_path,
         save_all=True,
