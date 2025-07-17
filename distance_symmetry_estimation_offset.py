@@ -71,13 +71,12 @@ if __name__ == "__main__":
             x0, y0 = pt0
             x1, y1 = pt180
             print(pt0, pt180)
-            dist2 = pow((x1 - x0) ** 2 + (y1 - y0) ** 2, 0.5)
-            print(dist2)
+
             diff_x = x1 - x0
             diff_y = y1 - y0
             # 绘制点
-            axs[2].plot(x0, y0, 'ro', markersize=5)
-            axs[2].plot(x1, y1, 'bo', markersize=5)
+            axs[2].plot(x0, y0, 'ro', markersize=4)
+            axs[2].plot(x1, y1, 'bo', markersize=4)
 
             # 连线
             axs[2].plot([x0, x1], [y0, y1], 'k--', linewidth=1)
@@ -95,3 +94,4 @@ if __name__ == "__main__":
 
     plt.tight_layout()
     plt.show()
+

@@ -221,7 +221,8 @@ if __name__ == "__main__":
     spacing = 0.3
     target_angles = [0, 180]
     max_search_offset = 10
-    match_metric = 'grad_ncc'
+    metrics = ["ncc", "ssim", "mse", "grad_ncc"]
+    match_metric = "grad_ncc"
 
     # === 读取投影文件名与角度 ===
     proj_file_list, angle_list = read_projection_file(data_dir)
@@ -255,4 +256,3 @@ if __name__ == "__main__":
     image_offset_mm = optimal_u_offset * spacing
     detector_shift_mm = image_offset_mm / 2
     print(f"实际探测器偏移 ≈ {detector_shift_mm:.3f} mm")
-

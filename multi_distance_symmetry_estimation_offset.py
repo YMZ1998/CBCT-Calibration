@@ -70,7 +70,7 @@ def select_from_detected_circles(image, circles):
         return None
 
 
-def match_and_estimate_offset(img1, img2, show_plot=1):
+def match_and_estimate_offset(img1, img2, show_plot=0):
     """
     匹配两个图像中的圆点，估计 x/y 偏移量
     """
