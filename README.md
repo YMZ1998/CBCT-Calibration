@@ -3,9 +3,6 @@ CBCT geometry calibration.
 
 ---
 
-
-CBCT geometry calibration.
-
 This code is based on:
 
 * [CBCTCalibration](https://github.com/neutronimaging/CBCTCalibration)
