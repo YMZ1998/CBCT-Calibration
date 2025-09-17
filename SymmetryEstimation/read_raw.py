@@ -1,31 +1,20 @@
 import os
+
 import cv2
-import numpy as np
 import matplotlib.pyplot as plt
-from PIL import Image
+import numpy as np
 
-
-def read_raw_image(filename, width, height, dtype=np.uint16):
-    file_size = width * height * np.dtype(dtype).itemsize
-    with open(filename, 'rb') as f:
-        raw_data = f.read(file_size)
-    image = np.frombuffer(raw_data, dtype=dtype)
-    image = image.reshape((height, width)).astype(np.float32)
-    return image
-
-
+from SymmetryEstimation.utils import read_raw_image
 
 if __name__ == "__main__":
     data_dir = r"D:\Data\cbct\CBCT0709"
     image_size = 1420
-    filenames = [f for f in os.listdir(data_dir) if f.endswith(".raw")][::2]
+    filenames = [f for f in os.listdir(data_dir) if f.endswith(".raw")][::5]
 
     fig, ax = plt.subplots(figsize=(6, 6))
     img_handle = ax.imshow(np.zeros((image_size, image_size, 3), dtype=np.uint8))
     ax.axis("off")
     title_handle = ax.set_title("")
-
-    frames = []  # 用于存储GIF的每帧
 
     for idx, fname in enumerate(sorted(filenames)):
         filename = os.path.join(data_dir, fname)

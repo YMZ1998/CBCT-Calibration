@@ -5,7 +5,7 @@ import numpy as np
 
 
 def read_raw_image(filename, width, height, dtype=np.uint16):
-    print(f"正在读取 {filename}...")
+    # print(f"正在读取 {filename}...")
     file_size = width * height * np.dtype(dtype).itemsize
     with open(filename, 'rb') as f:
         raw_data = f.read(file_size)

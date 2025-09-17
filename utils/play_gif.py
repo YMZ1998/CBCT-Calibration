@@ -1,13 +1,10 @@
-import imageio
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+import numpy as np
 from PIL import Image
 
 gif_path = '../result/detected_circles_compressed.gif'
 
-# === 加载 GIF 并播放 ===
-# 读取 GIF 为帧序列
 im = Image.open(gif_path)
 frames = []
 
@@ -18,7 +15,6 @@ try:
 except EOFError:
     pass
 
-# 显示为动画
 fig, ax = plt.subplots()
 img_display = ax.imshow(frames[0], cmap='magma')
 ax.axis('off')
