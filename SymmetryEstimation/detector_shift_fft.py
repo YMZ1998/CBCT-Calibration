@@ -42,10 +42,15 @@ img180 = cv2.normalize(image_180.astype(np.float32), None, 0, 1.0, cv2.NORM_MINM
 # 水平翻转 180° 投影
 img180_flip = cv2.flip(img180, 1)  # 水平翻转
 
+scale = 0.25  # 1420 -> 355
+img0_small = cv2.resize(img0, (0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR)
+img180_small = cv2.resize(img180_flip, (0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR)
+
 # ===============================
 # 方法A：空间域互相关
 # ===============================
-corr = correlate2d(img0, img180_flip, mode='same')
+print("正在计算空间互相关...")
+corr = correlate2d(img0_small, img180_small, mode='same')
 max_idx = np.unravel_index(np.argmax(corr), corr.shape)
 center = (np.array(corr.shape) - 1) / 2
 delta_vu = np.array(max_idx) - center  # [Δv, Δu]
@@ -71,6 +76,7 @@ def phase_shift(imgA, imgB):
     return delta[0], delta[1]  # Δu, Δv
 
 
+print("正在计算傅里叶相位...")
 du, dv = phase_shift(img0, img180_flip)
 print("傅里叶相位估计偏移 (u,v) ≈", (du, dv))
 

@@ -4,26 +4,26 @@ import cli
 from calibration import run_calibration
 
 
-def run_cli():
-    # cli.main()
-    runner = CliRunner()
-    # result = runner.invoke(cli.main, ["--help"])
-    # print(result.output)
-    input_dir = r"D:\Data\cbct\250613模体数据\A"
-    ref_file = r"./geometric_calibration/app_data/ref_brandis.txt"
-
-    print('start')
-    result = runner.invoke(cli.main, [
-        "--mode", "cbct",
-        "--input_path", str(input_dir),
-        "--ref", str(ref_file),
-        "--sad", "940",
-        "--sid", "1490"
-    ])
-    print('end')
-    print(result.output)
-    print(result.exit_code)
-    print(result.exception)
+# def run_cli():
+#     # cli.main()
+#     runner = CliRunner()
+#     # result = runner.invoke(cli.main, ["--help"])
+#     # print(result.output)
+#     input_dir = r"D:\Data\cbct\CBCT0707"
+#     ref_file = r"./geometric_calibration/app_data/ref_brandis.txt"
+#
+#     print('start')
+#     result = runner.invoke(cli.main, [
+#         "--mode", "cbct",
+#         "--input_path", str(input_dir),
+#         "--ref", str(ref_file),
+#         "--sad", "940",
+#         "--sid", "1490"
+#     ])
+#     print('end')
+#     print(result.output)
+#     print(result.exit_code)
+#     print(result.exception)
 def vis_bbs():
     import numpy as np
     import matplotlib.pyplot as plt
@@ -45,8 +45,8 @@ if __name__ == "__main__":
     vis_bbs()
     run_calibration(
         mode="cbct",
-        input_path=r"D:\Data\cbct\250613模体数据\A",
+        input_path=r"D:\Data\cbct\CBCT0707",
         ref="./app_data/ref_brandis.txt",
         sad=940,
-        sid=1490,
+        sid=1450,
     )

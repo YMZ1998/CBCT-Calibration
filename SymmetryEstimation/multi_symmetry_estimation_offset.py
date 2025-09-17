@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 
 from symmetry_estimation_offset import estimate_u_offset
 
+scale = 900.07 / 1451.42
+
 
 def generate_symmetric_angle_pairs(angle_step=30):
     """
@@ -10,11 +12,11 @@ def generate_symmetric_angle_pairs(angle_step=30):
     (-150, 30), (-120, 60), ..., (150, -30)
     """
     angle_pairs = []
-    for a in range(-150, 180, angle_step):
+    for a in range(0, 360, angle_step):
         a1 = a
         a2 = a + 180
-        if a2 > 180:
-            a2 -= 360
+        if a2 > 360:
+            continue
         angle_pairs.append((a1, a2))
     return angle_pairs
 
@@ -50,7 +52,7 @@ def estimate_u_offsets_for_symmetric_angles(
         offset, *_ = estimate_u_offset(
             img_src, img_mirror, max_offset=max_offset, metric=metric)
 
-        offset_mm = offset * spacing
+        offset_mm = offset * spacing / 2 * scale
 
         offset_data.append({
             "angle_src": angle_list[idx_src],
@@ -59,7 +61,7 @@ def estimate_u_offsets_for_symmetric_angles(
             "offset_mm": offset_mm
         })
 
-        print(f"✅ {angle_list[idx_src]:.1f}° vs {angle_list[idx_mirror]:.1f}° → u = {offset:.2f}px = {offset_mm:.2f}mm")
+        print(f"✅ {angle_list[idx_src]:.1f}° vs {angle_list[idx_mirror]:.1f}° → u = {offset:.2f}px → {offset_mm:.2f}mm")
 
     return offset_data
 
@@ -73,7 +75,7 @@ def plot_u_offsets_vs_angle(offset_data):
 
     print(f"\n📊 平均 u 偏移: {mean_offset:.3f} mm，标准差: {std_offset:.3f} mm")
 
-    detector_shift_mm = mean_offset / 2
+    detector_shift_mm = mean_offset
     print(f"实际探测器偏移 ≈ {detector_shift_mm:.3f} mm")
 
     coeffs = np.polyfit(angles, offsets_mm, deg=2)
@@ -92,11 +94,11 @@ def plot_u_offsets_vs_angle(offset_data):
 
 
 if __name__ == "__main__":
-    data_dir = r"D:\Data\cbct\CBCT0703"
+    data_dir = r"D:\Data\cbct\CBCT0709"
     projection_size = [1420, 1420]
     spacing = 0.3
-    angle_step = 30
-    metric = 'ssim'
+    angle_step = 15
+    metric = 'grad_ncc'
 
     offset_data = estimate_u_offsets_for_symmetric_angles(
         data_dir, projection_size, spacing=spacing,

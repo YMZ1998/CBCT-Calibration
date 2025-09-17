@@ -1,47 +1,8 @@
-import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.ndimage import shift
 
-from utils import read_raw_image, read_projection_file, invert_image
-
-
-def normalize_image(image):
-    """标准化图像数据"""
-    # return (image - np.mean(image)) / (np.std(image) + 1e-5)
-    return (image - np.min(image)) / (np.max(image) - np.min(image) + 1e-5)
-
-
-def compute_metrics(image1, image2, metric='ncc'):
-    image1 = image1.astype(np.float32)
-    image2 = image2.astype(np.float32)
-
-    if metric == 'ncc':
-        score = np.mean(image1 * image2)
-
-    elif metric == 'mse':
-        score = np.mean((image1 - image2) ** 2)
-
-    elif metric == 'grad_ncc':
-        grad1 = cv2.Sobel(image1, cv2.CV_32F, 1, 0, ksize=3)
-        grad2 = cv2.Sobel(image2, cv2.CV_32F, 1, 0, ksize=3)
-        mean1 = np.mean(grad1)
-        mean2 = np.mean(grad2)
-        numerator = np.sum((grad1 - mean1) * (grad2 - mean2))
-        denominator = np.sqrt(np.sum((grad1 - mean1) ** 2) * np.sum((grad2 - mean2) ** 2))
-        score = numerator / (denominator + 1e-8)
-
-    elif metric == 'ssim':
-        from skimage.metrics import structural_similarity as ssim
-        # 将图像拉回 [0,1] 区间，因为 skimage 的 ssim 要求如此
-        img1_norm = (image1 - image1.min()) / (image1.max() - image1.min() + 1e-8)
-        img2_norm = (image2 - image2.min()) / (image2.max() - image2.min() + 1e-8)
-        score = ssim(img1_norm, img2_norm, data_range=1.0)
-
-    else:
-        raise ValueError(f"Unsupported metric: {metric}")
-
-    return score
+from utils import read_raw_image, read_projection_file, invert_image, compute_metrics, normalize_image
 
 
 def estimate_u_offset(image_deg_0, image_deg_180, max_offset=50, metric='ncc', subpixel=True, subpixel_step=0.1,
@@ -142,6 +103,8 @@ def visualize_projections(image_deg_0, image_deg_180):
     plt.subplot(1, 4, 3)
     plt.title("180° Flipped")
     plt.imshow(np.fliplr(image_deg_180), cmap='gray')
+    # plt.imshow(np.fliplr(np.fliplr(image_deg_0) - image_deg_180), cmap="jet")
+    # plt.colorbar()
     plt.subplot(1, 4, 4)
     plt.imshow(np.fliplr(image_deg_180) - image_deg_0, cmap="jet")
     plt.colorbar()
@@ -217,8 +180,10 @@ def visualize_difference_before_after_alignment(image_deg_0, image_deg_180, opti
 if __name__ == "__main__":
     # === 参数设置 ===
     data_dir = r"D:\Data\cbct\CBCT0709"
+    # data_dir = r"D:\Data\cbct\250613模体数据\B"
     projection_size = [1420, 1420]
     spacing = 0.3
+    scale = 900.07 / 1451.42
     target_angles = [0, 180]
     max_search_offset = 10
     metrics = ["ncc", "ssim", "mse", "grad_ncc"]
@@ -230,7 +195,7 @@ if __name__ == "__main__":
     # === 寻找最接近目标角度的图像文件 ===
     selected_proj_files = []
     for target in target_angles:
-        # target=target+2
+        target = target + 90
         closest_idx = min(range(len(angle_list)), key=lambda i: abs(angle_list[i] - target))
         selected_proj_files.append(proj_file_list[closest_idx])
         print(f"最接近 {target}° 的投影: {proj_file_list[closest_idx]}（角度: {angle_list[closest_idx]}°）")
@@ -239,10 +204,39 @@ if __name__ == "__main__":
     image_deg_0 = read_raw_image(selected_proj_files[0], projection_size[0], projection_size[1])
     image_deg_180 = read_raw_image(selected_proj_files[1], projection_size[0], projection_size[1])
 
+    visualize_projections(image_deg_0, image_deg_180)
+
+    min_val = 1000  # 下限
+    max_val = 8000  # 上限
+
+    clip_index = 400
+    # image_deg_0[:clip_index, :] = max_val
+    # image_deg_180[:clip_index, :] = max_val
+    # image_deg_0[projection_size[0] - clip_index:, :] = max_val
+    # image_deg_180[projection_size[0] - clip_index:, :] = max_val
+    #
+    # image_deg_0[image_deg_0 < max_val] = 1
+    # image_deg_180[image_deg_180 < max_val] = 1
+    # image_deg_0[image_deg_0 >= max_val] = 0
+    # image_deg_180[image_deg_180 >= max_val] = 0
+    image_deg_0 = np.clip(image_deg_0, min_val, max_val)
+    image_deg_180 = np.clip(image_deg_180, min_val, max_val)
+
+    # visualize_projections(image_deg_0, image_deg_180)
+    # visualize_projections(image_deg_180, image_deg_0)
+
     image_deg_0 = invert_image(image_deg_0)
     image_deg_180 = invert_image(image_deg_180)
+
+    # from scipy.ndimage import zoom
+    #
+    # # 放大 2 倍
+    # scale_factor = 2
+    # image_deg_0 = zoom(image_deg_0, scale_factor, order=1)  # order=1 双线性
+    # image_deg_180 = zoom(image_deg_180, scale_factor, order=1)
+
     # === 图像显示 ===
-    # visualize_projections(image_deg_0, image_deg_180)
+    visualize_projections(image_deg_0, image_deg_180)
 
     # === 偏移估计 ===
     optimal_u_offset, matching_scores, sub_matching_scores = estimate_u_offset(
@@ -253,6 +247,8 @@ if __name__ == "__main__":
     visualize_difference_before_after_alignment(image_deg_0, image_deg_180, optimal_u_offset)
 
     print(f"u 偏移: {optimal_u_offset * spacing} mm")
+    print(f"scale: {scale}")
+
     image_offset_mm = optimal_u_offset * spacing
-    detector_shift_mm = image_offset_mm / 2
+    detector_shift_mm = image_offset_mm / 2 * scale
     print(f"实际探测器偏移 ≈ {detector_shift_mm:.3f} mm")
