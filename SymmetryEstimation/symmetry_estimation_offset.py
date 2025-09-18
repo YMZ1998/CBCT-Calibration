@@ -151,7 +151,6 @@ def visualize_difference_before_after_alignment(image_deg_0, image_deg_180, opti
     shifted_image_180 = shift(image_deg_180_flipped, shift=(0, optimal_offset), order=1, mode='nearest')
 
     # 计算裁剪范围（避免边界）
-    h, w = image_deg_0.shape
     crop = max(abs(int(np.ceil(optimal_offset))), crop_margin)
     img0_crop = image_deg_0[:, crop:-crop]
     img180_crop_before = image_deg_180_flipped[:, crop:-crop]
@@ -177,10 +176,31 @@ def visualize_difference_before_after_alignment(image_deg_0, image_deg_180, opti
     plt.show()
 
 
+def clip_image(image_deg_0, image_deg_180):
+    min_val = 1000  # 下限
+    max_val = 10000  # 上限
+
+    clip_index = 100
+    # image_deg_0[:, :clip_index] = max_val
+    # image_deg_180[:, projection_size[1] - clip_index:] = max_val
+    image_deg_0[:clip_index, :] = max_val
+    image_deg_180[:clip_index, :] = max_val
+    image_deg_0[image_deg_0.shape[0] - clip_index:, :] = max_val
+    image_deg_180[image_deg_180.shape[0] - clip_index:, :] = max_val
+    #
+    # image_deg_0[image_deg_0 < max_val] = 1
+    # image_deg_180[image_deg_180 < max_val] = 1
+    # image_deg_0[image_deg_0 >= max_val] = 0
+    # image_deg_180[image_deg_180 >= max_val] = 0
+    image_deg_0 = np.clip(image_deg_0, min_val, max_val)
+    image_deg_180 = np.clip(image_deg_180, min_val, max_val)
+    return image_deg_0, image_deg_180
+
+
 if __name__ == "__main__":
     # === 参数设置 ===
-    data_dir = r"D:\Data\cbct\CBCT0709"
-    # data_dir = r"D:\Data\cbct\250613模体数据\B"
+    # data_dir = r"D:\Data\cbct\CBCT0703"
+    data_dir = r"D:\Data\cbct\CBCT0331\B"
     projection_size = [1420, 1420]
     spacing = 0.3
     scale = 900.07 / 1451.42
@@ -195,7 +215,7 @@ if __name__ == "__main__":
     # === 寻找最接近目标角度的图像文件 ===
     selected_proj_files = []
     for target in target_angles:
-        target = target + 90
+        # target = target + 90
         closest_idx = min(range(len(angle_list)), key=lambda i: abs(angle_list[i] - target))
         selected_proj_files.append(proj_file_list[closest_idx])
         print(f"最接近 {target}° 的投影: {proj_file_list[closest_idx]}（角度: {angle_list[closest_idx]}°）")
@@ -204,23 +224,9 @@ if __name__ == "__main__":
     image_deg_0 = read_raw_image(selected_proj_files[0], projection_size[0], projection_size[1])
     image_deg_180 = read_raw_image(selected_proj_files[1], projection_size[0], projection_size[1])
 
-    visualize_projections(image_deg_0, image_deg_180)
+    # visualize_projections(image_deg_0, image_deg_180)
 
-    min_val = 1000  # 下限
-    max_val = 8000  # 上限
-
-    clip_index = 400
-    # image_deg_0[:clip_index, :] = max_val
-    # image_deg_180[:clip_index, :] = max_val
-    # image_deg_0[projection_size[0] - clip_index:, :] = max_val
-    # image_deg_180[projection_size[0] - clip_index:, :] = max_val
-    #
-    # image_deg_0[image_deg_0 < max_val] = 1
-    # image_deg_180[image_deg_180 < max_val] = 1
-    # image_deg_0[image_deg_0 >= max_val] = 0
-    # image_deg_180[image_deg_180 >= max_val] = 0
-    image_deg_0 = np.clip(image_deg_0, min_val, max_val)
-    image_deg_180 = np.clip(image_deg_180, min_val, max_val)
+    image_deg_0, image_deg_180 = clip_image(image_deg_0, image_deg_180)
 
     # visualize_projections(image_deg_0, image_deg_180)
     # visualize_projections(image_deg_180, image_deg_0)
@@ -229,8 +235,6 @@ if __name__ == "__main__":
     image_deg_180 = invert_image(image_deg_180)
 
     # from scipy.ndimage import zoom
-    #
-    # # 放大 2 倍
     # scale_factor = 2
     # image_deg_0 = zoom(image_deg_0, scale_factor, order=1)  # order=1 双线性
     # image_deg_180 = zoom(image_deg_180, scale_factor, order=1)
@@ -240,7 +244,7 @@ if __name__ == "__main__":
 
     # === 偏移估计 ===
     optimal_u_offset, matching_scores, sub_matching_scores = estimate_u_offset(
-        image_deg_0, image_deg_180, max_offset=max_search_offset, metric=match_metric, show=True
+        image_deg_0, image_deg_180, max_offset=max_search_offset, metric=match_metric, show=False
     )
 
     # === 可视化差值图（用于对齐验证） ===

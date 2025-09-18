@@ -47,7 +47,7 @@ def read_projection_file(proj_folder):
     return proj_file, angles
 
 
-def invert_image(image, max_val=1):
+def invert_image(image, max_val=1000):
     """
     图像反转（负片），先归一化再反转，输出范围为 [0, max_val]
 
