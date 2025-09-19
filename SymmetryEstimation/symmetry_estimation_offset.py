@@ -199,8 +199,8 @@ def clip_image(image_deg_0, image_deg_180):
 
 if __name__ == "__main__":
     # === 参数设置 ===
-    data_dir = r"D:\Data\cbct\CBCT0709"
-    # data_dir = r"D:\Data\cbct\CBCT0331\B"
+    # data_dir = r"D:\Data\cbct\CBCT0703"
+    data_dir = r"D:\Data\cbct\CBCT0331\A"
     projection_size = [1420, 1420]
     spacing = 0.3
     scale = 900.07 / 1451.42
@@ -250,9 +250,9 @@ if __name__ == "__main__":
     # === 可视化差值图（用于对齐验证） ===
     visualize_difference_before_after_alignment(image_deg_0, image_deg_180, optimal_u_offset)
 
-    print(f"u 偏移: {optimal_u_offset * spacing} mm")
-    print(f"scale: {scale}")
+    actual_image_offset = optimal_u_offset * 0.5
+    detector_shift_mm = actual_image_offset * spacing * scale
 
-    image_offset_mm = optimal_u_offset * spacing
-    detector_shift_mm = image_offset_mm / 2 * scale
+    print(f"scale: {scale}")
+    print(f"实际像素偏移: {actual_image_offset} pixels")
     print(f"实际探测器偏移 ≈ {detector_shift_mm:.3f} mm")
