@@ -94,8 +94,13 @@ def compute_metrics(image1, image2, metric='ncc'):
     elif metric == 'ssim':
         from skimage.metrics import structural_similarity as ssim
         # 将图像拉回 [0,1] 区间，因为 skimage 的 ssim 要求如此
-        img1_norm = (image1 - image1.min()) / (image1.max() - image1.min() + 1e-8)
-        img2_norm = (image2 - image2.min()) / (image2.max() - image2.min() + 1e-8)
+        # img1_norm = (image1 - image1.min()) / (image1.max() - image1.min() + 1e-8)
+        # img2_norm = (image2 - image2.min()) / (image2.max() - image2.min() + 1e-8)
+
+        global_min = min(image1.min(), image2.min())
+        global_max = max(image1.max(), image2.max())
+        img1_norm = (image1 - global_min) / (global_max - global_min + 1e-8)
+        img2_norm = (image2 - global_min) / (global_max - global_min + 1e-8)
         score = ssim(img1_norm, img2_norm, data_range=1.0)
 
     else:

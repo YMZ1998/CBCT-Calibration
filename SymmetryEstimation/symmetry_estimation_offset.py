@@ -36,7 +36,7 @@ def estimate_u_offset(image_deg_0, image_deg_180, max_offset=50, metric='ncc', s
             if score > best_score:
                 best_score = score
                 optimal_u_offset = offset
-        elif metric == 'mse':
+        else:
             if score < best_score:
                 best_score = score
                 optimal_u_offset = offset
@@ -199,8 +199,8 @@ def clip_image(image_deg_0, image_deg_180):
 
 if __name__ == "__main__":
     # === 参数设置 ===
-    # data_dir = r"D:\Data\cbct\CBCT0703"
-    data_dir = r"D:\Data\cbct\CBCT0331\A"
+    data_dir = r"D:\Data\cbct\CBCT0703"
+    # data_dir = r"D:\Data\cbct\CBCT0331\B"
     projection_size = [1420, 1420]
     spacing = 0.3
     scale = 900.07 / 1451.42
