@@ -199,7 +199,7 @@ def clip_image(image_deg_0, image_deg_180):
 
 if __name__ == "__main__":
     # === 参数设置 ===
-    data_dir = r"D:\Data\cbct\CBCT0703"
+    data_dir = r"D:\Data\cbct\CBCT0709_denoised"
     # data_dir = r"D:\Data\cbct\CBCT0331\B"
     projection_size = [1420, 1420]
     spacing = 0.3

@@ -17,10 +17,10 @@ from SymmetryEstimation.utils import (
 # =============================
 # 参数设置
 # =============================
-METRIC = "ssim"  # 可选: 'ncc' | 'grad_ncc' | 'ssim'
-SHOW_FIG = True  # 是否显示中间可视化
+METRIC = "mse"  # 可选: 'ncc' | 'grad_ncc' | 'ssim' | 'mse'
+SHOW_FIG = 0  # 是否显示中间可视化
 MAX_SHIFT = 10  # 最大整数像素搜索范围
-ROW_STEP = 60  # 取样间隔，用于估算COR
+ROW_STEP = 30  # 取样间隔，用于估算COR
 N_REPEAT = 90  # 每行复制次数
 
 
@@ -73,7 +73,7 @@ def best_shift_subpixel(s1, s2, search_range=(-2, 2), step=0.1, metric=METRIC):
     return best_shift, best_score
 
 
-def estimate_rotation_center(sinogram, show=1):
+def estimate_rotation_center(sinogram, show=0):
     """
     根据 sinogram 中相隔 180° 的投影对，估算旋转中心
     返回：center_px(像素) , center_shift(亚像素)
@@ -85,14 +85,19 @@ def estimate_rotation_center(sinogram, show=1):
 
     diffs, sub_shifts = [], []
 
-    for row in range(0, 180, ROW_STEP):
+    for row in range(1, 180, ROW_STEP):
         # 取相隔 180° 的两行并重复 N 次
         s1 = np.tile(sinogram[row, :], (N_REPEAT, 1)).T
         s2 = np.tile(sinogram[row + 180, :], (N_REPEAT, 1)).T
 
-        thresh = 6000 if np.max(s2) > 1000 else 10
+
+        from skimage.filters import threshold_otsu
+
+        thresh = threshold_otsu(np.hstack([s1, s2])) if np.max(s2) > 1000 else 10
         s1_bin = (s1 > thresh).astype(np.int8)
         s2_bin = (s2 > thresh).astype(np.int8)
+
+        print(f"阈值: {thresh:.1f}")
 
         diff = np.abs(s1_bin - s2_bin)
         projection_pair = np.hstack([s1_bin, s2_bin, diff])
@@ -158,7 +163,7 @@ if __name__ == "__main__":
     projections = []
     for fname in files:
         img = read_raw_image(os.path.join(data_dir, fname), image_size, image_size)
-        img = np.clip(img, 1000, 10000)
+        img = np.clip(img, 1000, 30000)
         projections.append(img)
     projections = np.stack(projections, axis=0)  # (N_angles, H, W)
     print("投影数据形状:", projections.shape)
