@@ -10,6 +10,7 @@ data/
 .idea/
 *.png
 *.jpg
+*.json
 INFO
 
 
