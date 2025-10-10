@@ -19,7 +19,7 @@ for x in range(0, numberOfProjections):
 rtk.write_geometry(geometry, r"D:\geometry.xml")
 
 # Create a stack of empty projection images
-ConstantImageSourceType = rtk. [ImageType]
+ConstantImageSourceType = rtk.ConstantImageSource[ImageType]
 constantImageSource = ConstantImageSourceType.New()
 origin = [-127, -127, 0.0]
 sizeOutput = [128, 128, numberOfProjections]
