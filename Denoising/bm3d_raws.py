@@ -7,12 +7,7 @@ import numpy as np
 from SymmetryEstimation.utils import read_raw_image
 
 
-def denoise_raw_file(raw_file, width, height, sigma=25.0, dtype=np.uint16):
-    """
-    读取单张 raw 文件并用 BM3D 去噪
-    """
-    img = read_raw_image(raw_file, width, height, dtype=dtype)
-
+def bm3d_denoise_raw(img, sigma=25.0):
     # BM3D 去噪
     profile = bm3d.BM3DProfile()
     profile.num_threads = 32
@@ -44,8 +39,6 @@ def denoise_raw_file(raw_file, width, height, sigma=25.0, dtype=np.uint16):
     # 计算并打印运行时间
     print(f"BM3D Denoising Time: {end_time - start_time:.4f} seconds")
 
-    # 放大回原始强度
-    denoised = denoised.astype(dtype)
     return denoised
 
 
@@ -59,13 +52,12 @@ def process_folder(input_dir, output_dir, width, height, sigma=25.0, dtype=np.ui
     filenames = [f for f in os.listdir(input_dir) if f.endswith(".raw")]
     filenames.sort()  # 按文件名排序处理
 
-    for i, fname in enumerate(filenames):\
-
-
+    for i, fname in enumerate(filenames):
         input_path = os.path.join(input_dir, fname)
         print(f"[{i + 1}/{len(filenames)}] Processing {fname} ...")
 
-        denoised = denoise_raw_file(input_path, width, height, sigma, dtype)
+        img = read_raw_image(input_path, width, height, dtype=dtype)
+        denoised = bm3d_denoise_raw(img, sigma).astype(dtype)
 
         output_path = os.path.join(output_dir, fname)
         denoised.tofile(output_path)

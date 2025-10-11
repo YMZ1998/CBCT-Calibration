@@ -1,6 +1,4 @@
 import SimpleITK as sitk
-
-import SimpleITK as sitk
 import numpy as np
 
 

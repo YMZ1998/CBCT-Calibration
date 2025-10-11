@@ -4,7 +4,7 @@ import shutil
 import cv2
 import numpy as np
 
-from SymmetryEstimation.bilateral_raw import visualize_images
+from bilateral_raw import visualize_images
 from SymmetryEstimation.utils import read_raw_image
 
 
@@ -19,7 +19,7 @@ def denoise_raw_file(raw_file, width, height, sigma_color=25.0, sigma_space=25.0
     denoised = denoised.astype(dtype)
 
     # 可视化
-    # visualize_images(img, denoised)
+    visualize_images(img, denoised)
 
     # 返回去噪后的图像
     return denoised

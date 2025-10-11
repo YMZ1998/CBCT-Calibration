@@ -30,7 +30,7 @@ def visualize_images(original, denoised):
 
     # 去噪后的图像
     plt.subplot(1, 3, 2)
-    plt.title("Bilateral Filtered")
+    plt.title("Filtered")
     plt.imshow(denoised, cmap='gray')
     plt.axis('off')
 

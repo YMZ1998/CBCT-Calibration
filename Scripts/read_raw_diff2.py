@@ -1,8 +1,6 @@
-import os.path
-
 import cv2
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def read_raw_image(filename, width, height, dtype=np.uint16):
@@ -46,6 +44,7 @@ def visualize_comparison(original1, original2, diff, title1="Original1", title2=
     plt.tight_layout()
     plt.show()
 
+
 def normalize(image):
     minval, maxval = image.min(), image.max()
     print(f"原始图像 min/max: {minval}, {maxval}")
@@ -53,13 +52,10 @@ def normalize(image):
     normalized_image = (image - minval) / (maxval - minval)
     return normalized_image
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     filename1 = r'D:\Data\cbct\DR0401\010\1\A.raw'
     filename2 = r'D:\Data\cbct\CBCT0402\010\202504021632\ct.A.136.46.07.raw'
-
-
-
 
     width, height = 2130, 2130
 
@@ -70,14 +66,12 @@ if __name__ == "__main__":
     # image1=normalize(image1)
     # image2=normalize(image2)
 
-
     print(image1.max(), image1.min())
     print(image2.max(), image2.min())
 
-    diff_image = image1- image2
+    diff_image = image1 - image2
     print(diff_image.max(), diff_image.min())
 
     visualize_comparison(image1, image2, diff_image,
                          title1=filename1, title2=filename2,
                          title3="Difference (Abs)")
-
