@@ -45,7 +45,11 @@ def convert_pet_to_suv(pet_nii_path, suv_factor):
     pet_data = pet.get_fdata()
     pet_suv_data = (pet_data * suv_factor).astype(np.float32)
     suv_img = nib.Nifti1Image(pet_suv_data, affine)
-    out_path = pet_nii_path.parent / "SUV.nii.gz"
+
+    print("SUV 图像 shape:", suv_img.shape)
+    print("SUV 最大值:", np.max(suv_img.get_fdata()))
+    print("SUV 平均值:", np.mean(suv_img.get_fdata()))
+    out_path = pet_nii_path.parent / "SUV2.nii.gz"
     nib.save(suv_img, out_path)
     print(f"✅ Saved SUV image: {out_path}")
     return out_path
