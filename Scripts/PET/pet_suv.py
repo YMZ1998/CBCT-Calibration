@@ -84,9 +84,11 @@ def load_pet_dicom_series(folder_path, series_id):
     print("info: ", info)
     return image_np, info
 
+
 def conv_time(time_str):
     # function for time conversion in DICOM tag
     return (float(time_str[:2]) * 3600 + float(time_str[2:4]) * 60 + float(time_str[4:13]))
+
 
 def calculate_suv2(image_np, info):
     total_dose = info['RadionuclideTotalDose']
@@ -103,12 +105,12 @@ def calculate_suv2(image_np, info):
 
 # ---------------- SUV 计算 ----------------
 def calculate_suv(image_np, info):
-    C_voxel = image_np * info['RescaleSlope'] #+ info['RescaleIntercept']
+    C_voxel = image_np * info['RescaleSlope']  # + info['RescaleIntercept']
     delta_t = time_to_seconds(info['AcquisitionTime']) - time_to_seconds(info['RadiopharmaceuticalStartTime'])
     print("Delta t:", delta_t)
     lambda_decay = np.log(2) / info['RadionuclideHalfLife']
     A_inj_corr = info['RadionuclideTotalDose'] * np.exp(-lambda_decay * delta_t)
-    suv = C_voxel * info['PatientWeight'] / A_inj_corr*1000
+    suv = C_voxel * info['PatientWeight'] / A_inj_corr * 1000
     return suv
 
 
@@ -160,6 +162,7 @@ if __name__ == "__main__":
 
     # 3. 读取 DICOM
     pet_image, info = load_pet_dicom_series(dicom_folder, series_id)
+    print(np.min(pet_image), np.max(pet_image))
 
     # 4. 计算 SUV
     suv_image = calculate_suv2(pet_image, info)

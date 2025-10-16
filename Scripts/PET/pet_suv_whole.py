@@ -83,6 +83,8 @@ def convert_pet_to_suv(pet_nii_path, suv_factors):
     affine = pet.affine
     pet_data = pet.get_fdata()
 
+    print(np.min(pet_data), np.max(pet_data))
+
     names = ['BW', 'LBM', 'BSA']
     out_paths = []
     for factor, name in zip(suv_factors, names):
