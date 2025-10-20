@@ -5,10 +5,6 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLa
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import Qt
 
-# 设置图像的宽度、高度和深度（通道数）
-width = 512  # 图像宽度
-height = 512  # 图像高度
-depth = 512  # 深度（例如，图像切片的数量）
 
 def read_raw_3d_image(file_path, width, height, depth):
     # 读取 RAW 三维图像
@@ -20,6 +16,7 @@ def read_raw_3d_image(file_path, width, height, depth):
     image = image.reshape((depth, height, width))  # 根据需要调整顺序
 
     return image
+
 
 class ImageViewer(QMainWindow):
     def __init__(self, image):
@@ -114,10 +111,11 @@ class ImageViewer(QMainWindow):
 
 
 if __name__ == "__main__":
-    # 修改为你自己的 RAW 文件路径
-    file_path = r"D:\Data\result\result.raw"
-
-    # 读取三维图像
+    file_path = r"D:\Data\ct.raw"
+    # 设置图像的宽度、高度和深度（通道数）
+    width = 1024  # 图像宽度
+    height = 1024  # 图像高度
+    depth = 360  # 深度（例如，图像切片的数量）
     image = read_raw_3d_image(file_path, width, height, depth)
 
     app = QApplication(sys.argv)

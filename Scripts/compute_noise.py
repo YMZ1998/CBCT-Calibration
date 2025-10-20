@@ -2,17 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage.metrics import structural_similarity as ssim
 
-def read_raw_image(filename, width, height, dtype=np.uint16):
-    file_size = width * height * np.dtype(dtype).itemsize - np.dtype(dtype).itemsize
+from SymmetryEstimation.utils import read_raw_image
 
-    with open(filename, 'rb') as f:
-        raw_data = f.read(file_size)
-
-    image = np.frombuffer(raw_data, dtype=dtype)
-    image = np.append(image, 0)
-    image = image.reshape((height, width))
-
-    return image
 
 def calculate_snr(image1, image2):
     """
