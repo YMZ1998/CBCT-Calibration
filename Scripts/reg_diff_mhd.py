@@ -83,7 +83,7 @@ def compare_images(mhd_file_path1, mhd_file_path2, mhd_file_path3, mhd_file_path
 
 
 def test_case(case_id):
-    src_path = r'D:\Data\cbct\DR07051\111'
+    src_path = r'D:\Data\cbct\DR0707\head'
     # src_path = r'D:\Data\cbct\DR0703\111'
     case=os.listdir(src_path)[case_id]
     mhd_file_path1 = os.path.join(src_path, case, 'a_mhd.mhd')
@@ -97,9 +97,9 @@ def test_case(case_id):
 
 
 if __name__ == '__main__':
-    for case in range(0,7,1):
-        test_case(case)
-    # test_case('45_1')
+    # for case in range(0,7,1):
+    #     test_case(case)
+    test_case(0)
     # test_case('45_2')
     # test_case('315')
     # test_case('315_1')

@@ -27,7 +27,7 @@ def detect_circles(image):
 
 
 if __name__ == "__main__":
-    data_dir = r"D:\Data\cbct\CBCT0707"
+    data_dir = r"D:\Data\cbct\体模"
     image_size = 1420
     filenames = [f for f in os.listdir(data_dir) if f.endswith(".raw")][::5]
 
