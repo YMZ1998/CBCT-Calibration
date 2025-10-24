@@ -47,8 +47,6 @@ def visualize_comparison(original1, original2, diff, title1="Original1", title2=
 
 
 if __name__ == "__main__":
-
-    # path=r"D:\Data\cbct\DR0308\111"
     path = r'D:\Data\cbct\DR07051\111'
     path2 = r'D:\Data\cbct\DR07051\111'
 

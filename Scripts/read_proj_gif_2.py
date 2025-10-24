@@ -18,22 +18,6 @@ def read_raw_image(filename, width, height, dtype=np.uint16):
     return image
 
 
-# def read_raw_image(file_path, width, height, dtype):
-#     print(file_path)
-#     with open(file_path, 'rb') as f:
-#         raw_data = f.read()
-#
-#     # if len(raw_data) % dtype.itemsize != 0:
-#     #     raise ValueError(f"Buffer size {len(raw_data)} is not a multiple of element size {dtype.itemsize}")
-#
-#     image = np.frombuffer(raw_data, dtype=dtype)
-#     if image.size != width * height:
-#         print(file_path)
-#         raise ValueError(f"File size does not match expected dimensions: ({height}, {width})")
-#     image = image.reshape((height, width))
-#     return image
-
-
 def normalize_image(image):
     image = image.astype(np.float32)
     image_min = np.min(image)

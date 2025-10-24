@@ -1,20 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def read_raw_image(filename, width, height, dtype=np.uint16):
-    file_size = width * height * np.dtype(dtype).itemsize - np.dtype(dtype).itemsize
-    print(file_size, np.dtype(dtype).itemsize)
-
-    with open(filename, 'rb') as f:
-        raw_data = f.read(file_size)
-    print(len(raw_data))
-
-    image = np.frombuffer(raw_data, dtype=dtype)
-    image = np.append(image, 0)
-    print(image.shape)
-    image = image.reshape((height, width))
-
-    return image
+from SymmetryEstimation.utils import read_raw_image
 
 
 def visualize_image(image1, image2):

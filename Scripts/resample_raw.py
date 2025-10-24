@@ -1,17 +1,7 @@
 import numpy as np
 from scipy.ndimage import zoom
 
-
-def read_raw_image(filename, width, height, dtype=np.uint8):
-    file_size = width * height * np.dtype(dtype).itemsize
-
-    with open(filename, 'rb') as f:
-        raw_data = f.read(file_size)
-
-    image = np.frombuffer(raw_data, dtype=dtype)
-    image = image.reshape((height, width))  # 重塑为二维数组
-
-    return image
+from SymmetryEstimation.utils import read_raw_image
 
 
 def downsample_image(image, scale_factor, mode='mean'):

@@ -1,21 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-print(134217728/512/512)
-# 读取 RAW 文件的函数
-def read_raw_image(file_path, width, height, dtype):
-    print(f"Reading RAW file {file_path}.")
-    # 读取原始文件数据
-    with open(file_path, 'rb') as f:
-        raw_data = f.read()
 
-    # 将原始数据转换为 numpy 数组
-    image = np.frombuffer(raw_data, dtype=dtype)
-
-    # 重塑数组为图像的维度 (height, width)
-    image = image.reshape((height, width))
-
-    return image
+from SymmetryEstimation.utils import read_raw_image
 
 # 设置图像参数
 width = 512  # 图像宽度

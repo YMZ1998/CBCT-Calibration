@@ -1,20 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-def read_raw_image(filename, width, height, dtype=np.uint16):
-    file_size = width * height * np.dtype(dtype).itemsize
-    print("预计文件大小:", file_size, "字节")
-
-    with open(filename, 'rb') as f:
-        raw_data = f.read(file_size)
-
-    print("实际读取大小:", len(raw_data), "字节")
-
-    image = np.frombuffer(raw_data, dtype=dtype)
-    image = image.reshape((height, width))
-
-    return image
+from SymmetryEstimation.utils import read_raw_image
 
 
 def normalize_and_correct_dr_image(dr: np.ndarray, max_bright, k, x0):
