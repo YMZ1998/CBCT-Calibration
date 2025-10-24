@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 from SymmetryEstimation.utils import read_raw_image
-from utils.correct_dr import normalize_and_correct_dr_image
+from utils.correct_dr import correct_image
 
 
 def sigmoid(x):
@@ -16,7 +16,6 @@ def find_darkest_point_with_confidence(image, x, y, radius, sub_radius):
     h, w = image.shape
     y1, y2 = max(0, y - radius), min(h, y + radius)
     x1, x2 = max(0, x - radius), min(w, x + radius)
-    region = image[y1:y2, x1:x2]
 
     # 大圆mask
     yy, xx = np.ogrid[y1:y2, x1:x2]
@@ -86,11 +85,11 @@ if __name__ == "__main__":
     # file_path = r"D:\Data\cbct\CBCT0707"
     file_name = os.listdir(file_path)[10]
     image_size = 1420
-    radius = 50  # 搜索半径
+    radius = 80  # 搜索半径
 
     # ==== 读取 raw 图 ====
     image = read_raw_image(os.path.join(file_path, file_name), image_size, image_size)
-    image = normalize_and_correct_dr_image(image, 255, 0.2, 0.05, 0.5)
+    image = correct_image(image, 255, 0.2, 0.05, 0.5)
     # image = np.clip(image, 20, 200)
     # image = np.clip(image, 500, 1000)
     image = cv2.normalize(image, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)

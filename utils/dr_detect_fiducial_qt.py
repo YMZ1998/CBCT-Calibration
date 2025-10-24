@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QImage
 from SymmetryEstimation.utils import read_raw_image
-from utils.correct_dr import normalize_and_correct_dr_image
+from utils.correct_dr import correct_image
 
 
 class FiducialDetector(QWidget):
@@ -87,7 +87,7 @@ class FiducialDetector(QWidget):
         fname, _ = QFileDialog.getOpenFileName(self, "选择RAW图像", r"D:\Data\cbct\DR0707\body\1", "RAW Files (*.raw)")
         if fname:
             image = read_raw_image(fname, self.image_size, self.image_size, dtype=np.uint16)
-            self.image = normalize_and_correct_dr_image(image)
+            self.image = correct_image(image)
             self.update_display()
 
     def window_level_transform(self, img, level, width):

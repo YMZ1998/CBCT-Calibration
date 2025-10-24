@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from SymmetryEstimation.utils import read_raw_image
-from utils.correct_dr import normalize_and_correct_dr_image
+from utils.correct_dr import correct_image
 
 
 def dr_detect_fiducial(image):
@@ -61,7 +61,7 @@ if __name__ == "__main__":
         # 读取原始图像
         image = read_raw_image(file_path, image_size, image_size)
 
-        image = normalize_and_correct_dr_image(image)
+        image = correct_image(image)
         # image = np.clip(image, 20, 400)
         # 检测金标圆
         circles, output, _ = dr_detect_fiducial(image)
