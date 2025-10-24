@@ -2,8 +2,9 @@ import os
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+
+from Scripts.DetectFiducial.correct_dr import correct_image
 from SymmetryEstimation.utils import read_raw_image
-from utils.correct_dr import correct_image
 
 
 def dr_detect_fiducial(image):

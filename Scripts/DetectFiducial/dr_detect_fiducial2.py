@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 from SymmetryEstimation.utils import read_raw_image
-from utils.correct_dr import correct_image
+from Scripts.DetectFiducial.correct_dr import correct_image
 
 
 def sigmoid(x):

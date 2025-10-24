@@ -1,15 +1,16 @@
 import sys
-import os
+
 import cv2
 import numpy as np
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QSlider, QVBoxLayout, QHBoxLayout,
     QPushButton, QFileDialog, QSpinBox
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QImage
+
+from Scripts.DetectFiducial.correct_dr import correct_image
 from SymmetryEstimation.utils import read_raw_image
-from utils.correct_dr import correct_image
 
 
 class FiducialDetector(QWidget):
