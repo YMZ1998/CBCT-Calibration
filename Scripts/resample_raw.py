@@ -17,8 +17,6 @@ def downsample_image(image, scale_factor, mode='mean'):
 
 
 def save_raw_image(image, filename):
-
-    # 将图像数据转换为二进制并保存
     with open(filename, 'wb') as f:
         f.write(image.tobytes())
 
