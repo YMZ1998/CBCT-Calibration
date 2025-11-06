@@ -37,7 +37,7 @@ def display_mean_and_animation(data_dir, image_size):
 
 
 if __name__ == "__main__":
-    data_dir = r"D:\Data\cbct\air_b"  # Path to your raw images
+    data_dir = r"D:\Data\cbct\air_correction\air_a"
     image_size = 1420  # Ensure this matches your image dimensions
 
     # Display mean image and animation of raw images
