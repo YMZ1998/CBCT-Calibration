@@ -111,7 +111,7 @@ def visualize_projections(image_deg_0, image_deg_180):
     plt.title(f"Difference Image")
     plt.axis('off')
     plt.tight_layout()
-    plt.show()
+    # plt.show()
 
 
 def visualize_matching_scores(matching_scores, optimal_offset, max_offset):
@@ -196,11 +196,7 @@ def clip_image(image_deg_0, image_deg_180):
     image_deg_180 = np.clip(image_deg_180, min_val, max_val)
     return image_deg_0, image_deg_180
 
-
-if __name__ == "__main__":
-    # === 参数设置 ===
-    data_dir = r"D:\Data\cbct\202510141600"
-    # data_dir = r"D:\Data\cbct\CBCT0331\B"
+def compute_shift(data_dir):
     projection_size = [1420, 1420]
     spacing = 0.3
     scale = 900.07 / 1451.42
@@ -256,3 +252,12 @@ if __name__ == "__main__":
     print(f"scale: {scale}")
     print(f"实际像素偏移: {actual_image_offset} pixels")
     print(f"实际探测器偏移 ≈ {detector_shift_mm:.3f} mm")
+    print(f"shift: {-detector_shift_mm:.2f}")
+
+
+if __name__ == "__main__":
+    # === 参数设置 ===
+    data_dir = r"D:\Data\cbct\202510141543"
+    # data_dir = r"D:\Data\cbct\CBCT0331\B"
+    compute_shift(data_dir)
+

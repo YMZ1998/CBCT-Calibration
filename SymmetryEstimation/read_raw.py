@@ -7,7 +7,7 @@ import numpy as np
 from SymmetryEstimation.utils import read_raw_image
 
 if __name__ == "__main__":
-    data_dir = r"D:\Data\cbct\CBCT0709"
+    data_dir = r"D:\Data\cbct\CBCT0709" + "_corrected"
     image_size = 1420
     filenames = [f for f in os.listdir(data_dir) if f.endswith(".raw")][::5]
 
@@ -28,6 +28,6 @@ if __name__ == "__main__":
         norm = ((image - min_val) / (max_val - min_val) * 255).astype(np.uint8)
         output = cv2.cvtColor(norm, cv2.COLOR_GRAY2BGR)
         img_handle.set_data(output[..., ::-1])  # BGR -> RGB for matplotlib
-        title_handle.set_text(f"Detected Circles: {fname}")
+        title_handle.set_text(f"Image: {fname}")
         plt.pause(0.1)
 

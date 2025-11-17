@@ -76,9 +76,6 @@ def visualize_air_correction(dark_image, air_image, cbct_image):
     print(f"✅ Visualization saved to: {os.path.abspath(save_path)}")
 
 
-
-
-
 if __name__ == "__main__":
     air_path = r"D:\Data\cbct\air_correction\air_a"
     dark_path = r"D:\Data\cbct\air_correction\dark\dark_a.raw"
