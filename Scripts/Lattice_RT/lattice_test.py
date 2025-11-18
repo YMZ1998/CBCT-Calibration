@@ -1,8 +1,11 @@
 import os
-import shutil
-import numpy as np
+
 import SimpleITK as sitk
-from scipy.ndimage import distance_transform_edt
+import numpy as np
+import scipy.ndimage as ndi
+from skimage.transform import resize
+
+from Scripts.Lattice_RT.create_sphere_mask import create_sphere_mask
 
 
 # -------------------------------
@@ -27,27 +30,6 @@ def create_manual_gtv(shape=(64, 64, 64), spacing=(2.0, 2.0, 2.0), type='sphere'
 
 
 # -------------------------------
-# 生成球形 mask（物理空间球）
-# -------------------------------
-def create_sphere_mask(center_zyx, radius_mm, ref_img):
-    spacing = ref_img.GetSpacing()  # (sx, sy, sz)
-    arr = sitk.GetArrayFromImage(ref_img)
-    sz, sy, sx = arr.shape
-
-    rvz, rvy, rvx = radius_mm / spacing[2], radius_mm / spacing[1], radius_mm / spacing[0]
-
-    zz, yy, xx = np.meshgrid(np.arange(sz), np.arange(sy), np.arange(sx), indexing='ij')
-    cz, cy, cx = center_zyx
-
-    sphere = ((zz - cz) / rvz) ** 2 + ((yy - cy) / rvy) ** 2 + ((xx - cx) / rvx) ** 2 <= 1.0
-    sphere = sphere.astype(np.uint8)
-
-    img = sitk.GetImageFromArray(sphere)
-    img.CopyInformation(ref_img)
-    return img
-
-
-# -------------------------------
 # 生成晶格点
 # -------------------------------
 def generate_lattice_points(gtv_img, radius_mm=10.0, min_edge_dist_mm=2.0, max_vertices=50):
@@ -55,7 +37,23 @@ def generate_lattice_points(gtv_img, radius_mm=10.0, min_edge_dist_mm=2.0, max_v
     spacing = gtv_img.GetSpacing()
     sz, sy, sx = gtv.shape
 
-    dt = distance_transform_edt(gtv, sampling=(spacing[2], spacing[1], spacing[0]))
+    # dt = distance_transform_edt(gtv, sampling=(spacing[2], spacing[1], spacing[0]))
+
+    # 下采样
+    factor = 4  # 每个维度下采样2倍
+    gtv_small = gtv[::factor, ::factor, ::factor]
+
+    # 距离变换
+    dt_small = ndi.distance_transform_edt(gtv_small, sampling=(spacing[2], spacing[1], spacing[0]))
+
+    # 放大回原始大小
+    dt = resize(dt_small, gtv.shape, order=1, mode='edge', anti_aliasing=False)
+    dt = dt * factor  # 物理尺寸也需要乘回
+
+    # dt_img = sitk.SignedMaurerDistanceMap(gtv_img,
+    #                                       insideIsPositive=True,
+    #                                       useImageSpacing=True)
+    # dt = sitk.GetArrayFromImage(dt_img)
 
     # 筛选候选点：球完全在 mask 内
     candidates = []
@@ -67,13 +65,14 @@ def generate_lattice_points(gtv_img, radius_mm=10.0, min_edge_dist_mm=2.0, max_v
                 if dt[z, y, x] < radius_mm:  # 球心到边界 < 半径
                     continue
                 candidates.append((z, y, x))
+    print("候选点数量:", len(candidates))
 
     # 贪心选择：球间距
     selected = []
     rvz, rvy, rvx = (radius_mm * 2 + min_edge_dist_mm) / spacing[2], (radius_mm * 2 + min_edge_dist_mm) / spacing[1], (
-            radius_mm * 2 + min_edge_dist_mm) / spacing[0]
+        radius_mm * 2 + min_edge_dist_mm) / spacing[0]
 
-    for cz, cy, cx in candidates:
+    for cz, cy, cx in candidates[::100]:
         ok = True
         for sz_, sy_, sx_ in selected:
             dz_mm = (cz - sz_) * spacing[2]
@@ -85,8 +84,9 @@ def generate_lattice_points(gtv_img, radius_mm=10.0, min_edge_dist_mm=2.0, max_v
                 break
         if ok:
             selected.append((cz, cy, cx))
-            if len(selected) >= max_vertices:
-                break
+            # if len(selected) >= max_vertices:
+            #     break
+    print("已选择晶格点数量:", len(selected))
     return selected
 
 
@@ -97,12 +97,14 @@ if __name__ == "__main__":
     output_dir = r"D:\debug\lattice"
     os.makedirs(output_dir, exist_ok=True)
 
+    radius_mm = 20.0
+
     # 1. 创建手动 GTV
-    gtv_img = create_manual_gtv(shape=(256, 256, 256), spacing=(1.0, 1.0, 1.0), type='sphere')
+    gtv_img = create_manual_gtv(shape=(256, 256, 256), spacing=(1.0, 1.0, 2.0), type='sphere')
     sitk.WriteImage(gtv_img, os.path.join(output_dir, "gtv.nii.gz"))
 
     # 2. 生成晶格中心点
-    vertices = generate_lattice_points(gtv_img, radius_mm=10.0, min_edge_dist_mm=2.0, max_vertices=20)
+    vertices = generate_lattice_points(gtv_img, radius_mm=radius_mm, min_edge_dist_mm=20.0, max_vertices=20)
     print("晶格点数量:", len(vertices))
     for v in vertices:
         print(v)
@@ -112,7 +114,7 @@ if __name__ == "__main__":
     merged = np.zeros_like(gtv_arr, dtype=np.uint8)
 
     for center in vertices:
-        sphere_img = create_sphere_mask(center, radius_mm=10.0, ref_img=gtv_img)
+        sphere_img = create_sphere_mask(center, radius_mm=radius_mm, ref_img=gtv_img)
         sphere_arr = sitk.GetArrayFromImage(sphere_img)
         # 截断到 GTV 范围
         sphere_arr = np.minimum(sphere_arr, gtv_arr)
