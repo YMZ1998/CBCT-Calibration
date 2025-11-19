@@ -5,7 +5,7 @@ import numpy as np
 import scipy.ndimage as ndi
 
 from Scripts.Lattice_RT.create_sphere_mask import create_sphere_mask
-from Scripts.Lattice_RT.lattice_test import create_manual_gtv, compute_lattice_distances
+from Scripts.Lattice_RT.lattice_distance import create_manual_gtv, compute_lattice_distances
 
 
 # -------------------------------
