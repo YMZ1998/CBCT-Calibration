@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_hex_grid_3d(centers: np.ndarray, radius, nz=3, z_step=1.5):
+def plot_hex_grid_3d(centers: np.ndarray, radius, nz=3):
     """
     Plot 3D hexagonal grid given XY center coordinates, radius, and number of layers in Z.
     """
@@ -10,11 +10,13 @@ def plot_hex_grid_3d(centers: np.ndarray, radius, nz=3, z_step=1.5):
     ax = fig.add_subplot(111, projection='3d')
 
     # 六边形顶点角度
+    # angles = np.array([np.pi / 6, np.pi / 2, 5 * np.pi / 6, 7 * np.pi / 6, 3 * np.pi / 2, 11 * np.pi / 6])
     angles = np.linspace(0 + 1 / 6 * np.pi, 2 * np.pi + 1 / 6 * np.pi, 6, endpoint=False)
+
 
     # 对每一层叠加Z坐标
     for iz in range(nz):
-        z = iz * z_step
+        z = iz * radius
         for x, y in centers:
             vx = x + radius * np.cos(angles)
             vy = y + radius * np.sin(angles)
@@ -53,6 +55,6 @@ def create_hex_grid_centers(nx: int = 5, ny: int = 5, radius: float = 1.) -> np.
 
 
 if __name__ == "__main__":
-    radius = 1
+    radius = 2
     centers = create_hex_grid_centers(5, 5, radius)
-    plot_hex_grid_3d(centers, radius, nz=5, z_step=1.5)
+    plot_hex_grid_3d(centers, radius, nz=5)

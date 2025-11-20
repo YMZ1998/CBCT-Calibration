@@ -9,32 +9,22 @@ from Scripts.Lattice_RT.lattice_distance import create_manual_gtv, compute_latti
 
 
 def generate_lattice_points_hcp(gtv_img, radius_mm=10.0, min_edge_dist_mm=2.0, shrink_mm=0.0):
-    import numpy as np
-    import SimpleITK as sitk
-    from scipy.ndimage import distance_transform_edt, binary_erosion
-
     gtv = sitk.GetArrayFromImage(gtv_img).astype(np.uint8)  # z,y,x
     spacing = np.array(gtv_img.GetSpacing())  # (sx,sy,sz)
     origin = np.array(gtv_img.GetOrigin())
-    direction = np.array(gtv_img.GetDirection()).reshape(3,3)
+    direction = np.array(gtv_img.GetDirection()).reshape(3, 3)
     nz, ny, nx = gtv.shape
-
-    # shrink
-    if shrink_mm > 0.0:
-        shrink_vox = np.array([shrink_mm/spacing[2], shrink_mm/spacing[1], shrink_mm/spacing[0]])
-        iter_num = int(np.ceil(shrink_vox.max()))
-        gtv = binary_erosion(gtv, iterations=iter_num).astype(np.uint8)
 
     # EDT in mm (note sampling order z,y,x -> spacing[z],spacing[y],spacing[x])
     dt = distance_transform_edt(gtv, sampling=(spacing[2], spacing[1], spacing[0]))
-
+    gtv = dt >= shrink_mm + radius_mm
     # 基本 hex spacing in mm
-    a = 2*radius_mm + min_edge_dist_mm
+    a = 2 * radius_mm + min_edge_dist_mm
     vx = a
-    vy = np.sqrt(3)/2 * a
+    vy = np.sqrt(3) / 2 * a
 
     # bounding box (voxel indices come as z,y,x)
-    coords = np.argwhere(gtv>0)
+    coords = np.argwhere(gtv > 0)
     if coords.size == 0:
         return []
     zmin_v, ymin_v, xmin_v = coords.min(axis=0)
@@ -61,12 +51,13 @@ def generate_lattice_points_hcp(gtv_img, radius_mm=10.0, min_edge_dist_mm=2.0, s
     pts_xy = []
     for row in range(-2, n_rows):
         y = row * vy
-        x_offset = (vx/2.0) if (row % 2 == 1) else 0.0
+        x_offset = (vx / 2.0) if (row % 2 == 1) else 0.0
         for col in range(-2, n_cols):
             x = col * vx + x_offset
             w = origin_xy + np.array([x, y])
             # filter to bbox (slightly expanded)
-            if (w[0] < x_min_world - a) or (w[0] > x_max_world + a) or (w[1] < y_min_world - a) or (w[1] > y_max_world + a):
+            if (w[0] < x_min_world - a) or (w[0] > x_max_world + a) or (w[1] < y_min_world - a) or (
+                w[1] > y_max_world + a):
                 continue
             pts_xy.append(w)
     pts_xy = np.array(pts_xy)  # world coords
@@ -75,8 +66,8 @@ def generate_lattice_points_hcp(gtv_img, radius_mm=10.0, min_edge_dist_mm=2.0, s
     # For HCP we typically offset alternating layers by (a/2, sqrt(3)/6*a)
     layer_gap_mm = a  # 你可以调成 a * 0.816... 等更接近紧密堆叠的值
     z_steps = int(max(1, np.round((zmax_v - zmin_v + 1) * spacing[2] / layer_gap_mm)))  # rough count
-    z_world_min = voxel_to_world(0,0,zmin_v)[2]
-    z_world_max = voxel_to_world(0,0,zmax_v)[2]
+    z_world_min = voxel_to_world(0, 0, zmin_v)[2]
+    z_world_max = voxel_to_world(0, 0, zmax_v)[2]
     if z_world_max <= z_world_min:
         z_vals = [z_world_min]
     else:
@@ -89,15 +80,15 @@ def generate_lattice_points_hcp(gtv_img, radius_mm=10.0, min_edge_dist_mm=2.0, s
     def phys_to_index(pt_mm):
         rel = np.linalg.inv(direction).dot(pt_mm - origin) / spacing
         ix, iy, iz = np.round(rel).astype(int)
-        ix = np.clip(ix, 0, nx-1)
-        iy = np.clip(iy, 0, ny-1)
-        iz = np.clip(iz, 0, nz-1)
+        ix = np.clip(ix, 0, nx - 1)
+        iy = np.clip(iy, 0, ny - 1)
+        iz = np.clip(iz, 0, nz - 1)
         return ix, iy, iz
 
     for li, wz in enumerate(z_vals):
         # alternating offset per layer for HCP
         if (li % 2) == 1:
-            layer_offset = np.array([a/2.0, np.sqrt(3)/6.0 * a])
+            layer_offset = np.array([a / 2.0, np.sqrt(3) / 6.0 * a])
         else:
             layer_offset = np.array([0.0, 0.0])
 
@@ -115,11 +106,6 @@ def generate_lattice_points_hcp(gtv_img, radius_mm=10.0, min_edge_dist_mm=2.0, s
             vox_list.append(key)
 
     return vox_list
-
-
-
-
-
 
 
 # -------------------------------

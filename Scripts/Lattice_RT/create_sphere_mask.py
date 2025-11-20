@@ -4,6 +4,56 @@ import SimpleITK as sitk
 import numpy as np
 
 
+def create_sphere_mask_physical(center_xyz_mm, radius_mm, ref_img):
+    """
+    使用物理坐标创建球形 mask（SimpleITK Image）。
+
+    Args:
+        center_xyz_mm: (x, y, z) 物理坐标，单位 mm
+        radius_mm: 球半径，单位 mm
+        ref_img: SimpleITK 图像，获取尺寸、spacing、origin
+    Returns:
+        mask_img: SimpleITK 图像，类型 uint8，球内为1
+    """
+    spacing = np.array(ref_img.GetSpacing())  # (sx, sy, sz)
+    size = np.array(ref_img.GetSize())  # (sx, sy, sz)
+    origin = np.array(ref_img.GetOrigin())  # (ox, oy, oz)
+
+    # 将物理坐标转换为 voxel index
+    center_vox = ((np.array(center_xyz_mm) - origin) / spacing).astype(int)
+    cx, cy, cz = center_vox  # voxel 坐标
+
+    # 半径转换为 voxel 数
+    radius_vox = radius_mm / spacing  # 各轴方向的 voxel 半径
+
+    # 输出 mask
+    mask = np.zeros(size[::-1], dtype=np.uint8)  # SimpleITK 数组 shape: (z,y,x)
+
+    # 限定遍历范围
+    x_min = max(int(cx - radius_vox[0]), 0)
+    x_max = min(int(cx + radius_vox[0]) + 1, size[0])
+    y_min = max(int(cy - radius_vox[1]), 0)
+    y_max = min(int(cy + radius_vox[1]) + 1, size[1])
+    z_min = max(int(cz - radius_vox[2]), 0)
+    z_max = min(int(cz + radius_vox[2]) + 1, size[2])
+
+    for z in range(z_min, z_max):
+        dz = (z - cz) / radius_vox[2]
+        dz2 = dz * dz
+        for y in range(y_min, y_max):
+            dy = (y - cy) / radius_vox[1]
+            dy2 = dy * dy
+            for x in range(x_min, x_max):
+                dx = (x - cx) / radius_vox[0]
+                dx2 = dx * dx
+                if dx2 + dy2 + dz2 <= 1.0:
+                    mask[z, y, x] = 1
+
+    # 转回 SimpleITK 图像
+    mask_img = sitk.GetImageFromArray(mask)
+    mask_img.CopyInformation(ref_img)
+    return mask_img
+
 
 def create_sphere_mask(center_zyx, radius_mm, ref_img):
     """
@@ -13,7 +63,7 @@ def create_sphere_mask(center_zyx, radius_mm, ref_img):
     """
     spacing = ref_img.GetSpacing()  # (sx, sy, sz)
     size = ref_img.GetSize()       # (x, y, z)
-    sz, sy, sx = ref_img.GetSize()[2], ref_img.GetSize()[1], ref_img.GetSize()[0]
+    sz, sy, sx = size[2], size[1], size[0]
 
     # 输出数组初始化
     mask = np.zeros((sz, sy, sx), dtype=np.uint8)
