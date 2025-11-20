@@ -257,7 +257,7 @@ def compute_shift(data_dir):
 
 if __name__ == "__main__":
     # === 参数设置 ===
-    data_dir = r"D:\Data\cbct\202510141543"
+    data_dir = r"D:\Data\cbct\202511181018"
     # data_dir = r"D:\Data\cbct\CBCT0331\B"
     compute_shift(data_dir)
 

@@ -4,7 +4,6 @@ import time
 import SimpleITK as sitk
 import numpy as np
 import scipy.ndimage as ndi
-from skimage.transform import resize
 
 from Scripts.Lattice_RT.create_manual_gtv import create_manual_gtv
 from Scripts.Lattice_RT.create_sphere_mask import create_sphere_mask
@@ -17,20 +16,21 @@ def generate_lattice_points(gtv_img, radius=10.0, min_edge_dist_mm=2.0, shrink_m
     # gtv = shrink_mask(gtv, spacing[::-1], shrink_mm)
 
     start = time.time()
-    is_resample = 0
-    if is_resample:
-        # 下采样
-        factor = 4  # 每个维度下采样2倍
-        gtv_small = gtv[::factor, ::factor, ::factor]
-
-        # 距离变换
-        dt_small = ndi.distance_transform_edt(gtv_small, sampling=spacing[::-1])
-
-        # 放大回原始大小
-        dt = resize(dt_small, gtv.shape, order=1, mode='edge', anti_aliasing=False)
-        dt = dt * factor  # 物理尺寸也需要乘回
-    else:
-        dt = ndi.distance_transform_edt(gtv, sampling=spacing[::-1])
+    # is_resample = 0
+    # if is_resample:
+    #     # 下采样
+    #     factor = 4  # 每个维度下采样2倍
+    #     gtv_small = gtv[::factor, ::factor, ::factor]
+    #
+    #     # 距离变换
+    #     dt_small = ndi.distance_transform_edt(gtv_small, sampling=spacing[::-1])
+    #
+    #     # 放大回原始大小
+    #     from skimage.transform import resize
+    #     dt = resize(dt_small, gtv.shape, order=1, mode='edge', anti_aliasing=False)
+    #     dt = dt * factor  # 物理尺寸也需要乘回
+    # else:
+    dt = ndi.distance_transform_edt(gtv, sampling=spacing[::-1])
 
     candidates = np.argwhere(dt >= radius + shrink_mm)
 
